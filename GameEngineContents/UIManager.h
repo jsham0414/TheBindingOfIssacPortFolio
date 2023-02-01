@@ -22,6 +22,7 @@ public:
 	UIManager& operator=(UIManager&& _Other) noexcept = delete;
 
 	void SetHp(int _Hp);
+	void SetStuff(int _Type, int _Value);
 
 protected:
 	void Start() override;

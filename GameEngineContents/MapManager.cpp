@@ -202,7 +202,7 @@ void MapManager::RandomMapGenerate(GameEngineLevel* _Level) {
 			}
 			temp += '\n';
 		}
-		Font->SetText(temp);
+		//Font->SetText(temp);
 
 		for (int i = 0; i < Height * Width; i++) {
 			int RoomType = RoomPlan[i];

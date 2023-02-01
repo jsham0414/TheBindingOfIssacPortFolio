@@ -376,12 +376,15 @@ void Player::Attack(int _Direction) {
 
 }
 
-void Player::Update(float _DeltaTime)
-{
-	// GameEngineDebug::DrawSphere(Collision->GetTransform(), {1.0f, 0.0f,0.0f, 0.5f});
+void Player::Update(float _DeltaTime) {
+	for (int i = 0; i < _countof(Stuffs); i++) {
+		Stuffs[i] -= 1;
 
-	//HPRenderer->GetPixelData().Slice.x += _DeltaTime;
-	
+		if (Stuffs[i] < 0) {
+			Stuffs[i] = 99;
+		}
+		GetLevel()->GetUIManager()->SetStuff(i, Stuffs[i]);
+	}
 
 	if (!(GameEngineInput::GetInst()->IsPress("PlayerUp") || GameEngineInput::GetInst()->IsPress("PlayerDown")))
 		PlayerVertical -= (PlayerVertical / fabs(PlayerVertical)) * (Speed * Slope) * _DeltaTime;
@@ -396,7 +399,7 @@ void Player::Update(float _DeltaTime)
 	static DWORD dwTime = GetTickCount64();
 	if (dwTime < GetTickCount64()) {
 		dwTime = GetTickCount64() + 10;
-		Font->SetText(to_string(GetVertical()) + ", " + to_string(GetHorizontal()));
+		//Font->SetText(to_string(GetVertical()) + ", " + to_string(GetHorizontal()));
 	}
 
 	GetTransform().SetWorldMove(GetTransform().GetUpVector() * (Speed * sin(GetVertical())) * _DeltaTime);
@@ -420,37 +423,7 @@ void Player::Update(float _DeltaTime)
 	StateManager.Update(_DeltaTime);
 	AttackManager.Update(_DeltaTime);
 
-	// 바깥에 이녀석들의 로직이 점점 나가고.
-	// 최대한 피해야 합니다.
-	//if (5.0f >= StateManager.GetCurStateTime())
-	//{
-	//	return;
-	//}
-
-	//Collision->IsCollision(CollisionType::CT_OBB, OBJECTORDER::Monster, CollisionType::CT_OBB,
-	//	[](GameEngineCollision* _This, GameEngineCollision* _Other)
-	//	{
-	//		// 여기서 뭔가를 하면 된다.
-	//		_Other->GetActor()->Death();
-	//		// 계속 충돌체크를 해라
-	//		// return false;
-	//		// 이 충돌체크를 끝내라
-	//		return true;
-	//	}
-	//);
-
-	//if (true == Collision->IsCollision(CollisionType::CT_OBB2D, OBJECTORDER::UI, CollisionType::CT_OBB2D))
-	//{
-	//	int a = 0;
-	//	// 포탈과 닿았다면
-	//}
-	//
-
 	Collision->IsCollision(CollisionType::CT_AABB, OBJECTORDER::UI, CollisionType::CT_AABB,
 		std::bind(&Player::MonsterCollision, this, std::placeholders::_1, std::placeholders::_2)
 	);
-
-	//Collision->IsCollision(CollisionType::CT_OBB, OBJECTORDER::Monster, CollisionType::CT_OBB,
-	//	std::bind(&Player::MonsterCollision, this)
-	//);
 }

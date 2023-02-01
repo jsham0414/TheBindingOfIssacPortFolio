@@ -311,10 +311,10 @@ public:
 	}
 
 	void SetFrameAni(std::map<std::string, FrameAnimation>* _FrameAni) {
-		if (_FrameAni != nullptr)
-			delete _FrameAni;
+		if (FrameAni != nullptr)
+			delete FrameAni;
 
-		_FrameAni = FrameAni;
+		FrameAni = _FrameAni;
 	}
 
 protected:

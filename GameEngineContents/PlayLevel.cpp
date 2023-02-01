@@ -95,6 +95,8 @@ void PlayLevel::LoadTexture() {
 				GameEngineTexture::Cut(Shaders[i].GetFileName(), 3, 1);
 			if (Shaders[i].GetFileName() == "Stuffs.png")
 				GameEngineTexture::Cut(Shaders[i].GetFileName(), 3, 1);
+			if (Shaders[i].GetFileName() == "Number.png")
+				GameEngineTexture::Cut(Shaders[i].GetFileName(), 10, 1);
 		}
 	}
 }

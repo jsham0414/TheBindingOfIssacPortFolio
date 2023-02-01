@@ -27,7 +27,7 @@ void HpInstance::SetIndex(int _Index) {
 void HpInstance::Start() {
 	Index = 0;
 
-	GetTransform().SetWorldPosition({ -345.f, 224.f });
+	GetTransform().SetLocalPosition({ 135.f, -45.f });
 	Renderer = CreateComponent<GameEngineTextureRenderer>();
 	Renderer->ChangeCamera(CAMERAORDER::UICAMERA);
 

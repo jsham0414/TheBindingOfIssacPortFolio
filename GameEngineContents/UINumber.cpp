@@ -14,6 +14,9 @@ void UINumber::ChangeValue(int _Value) {
 	Value = _Value;
 
 	std::string ValueToString = std::to_string(Value);
+	if (ValueToString.size() == 1)
+		ValueToString = "0" + ValueToString;
+
 	int SubDigit = ValueToString.size() - RendererList.GetSize();
 
 	// 자릿수에 맞춰 끄거나 새로 만든다
@@ -31,13 +34,14 @@ void UINumber::ChangeValue(int _Value) {
 	// 자릿수에 맞게 숫자를 넣어준다
 	auto NumRenderer = RendererList.GetHead();
 	for (int i = 0; i < ValueToString.size(); i++) {
-		string NewNumber = to_string(ValueToString.c_str()[i]);
+		string NewNumber(&ValueToString.c_str()[i]);
 		auto _Renderer = NumRenderer->Data;
 		_Renderer->On();
-		_Renderer->ChangeFrameAnimation(NewNumber);
 		int IntNum = ValueToString.c_str()[i] - (int)'0';
+		_Renderer->ChangeFrameAnimation(to_string(IntNum));
 		_Renderer->ScaleToCutTexture(IntNum);
-		_Renderer->GetTransform().SetLocalPosition({ i * (_Renderer->GetTransform().GetWorldScale().x - 2), 0.f });
+		_Renderer->GetTransform().SetLocalPosition({ 18 + i * (_Renderer->GetTransform().GetWorldScale().x - 2), 0.f });
+		NumRenderer = NumRenderer->NextNode;
 	}
 }
 
