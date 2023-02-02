@@ -33,6 +33,8 @@ public:
 
 	void Attack(int _Direction);
 
+	void PlayerSetPosition(float4 _NewPos);
+
 	inline int GetHp() {
 		return Hp;
 	}

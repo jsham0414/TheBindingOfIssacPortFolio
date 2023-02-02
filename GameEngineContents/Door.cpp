@@ -43,7 +43,7 @@ void Door::Start() {
 void Door::Initialize() {
 	Spawn = new GameEngineTransform();
 	Spawn->SetParentTransform(GetTransform());
-	Spawn->SetLocalPosition({ 0, -50 });
+	Spawn->SetLocalPosition({ 0, -40 });
 }
 
 bool Door::PlayerCollision(GameEngineCollision* _This, GameEngineCollision* _Other) {

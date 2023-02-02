@@ -376,16 +376,13 @@ void Player::Attack(int _Direction) {
 
 }
 
+void Player::PlayerSetPosition(float4 _NewPos) {
+	PlayerHorizontal = 0.f;
+	PlayerVertical = 0.f;
+	GetTransform().SetWorldPosition(_NewPos);
+}
+
 void Player::Update(float _DeltaTime) {
-	for (int i = 0; i < _countof(Stuffs); i++) {
-		Stuffs[i] -= 1;
-
-		if (Stuffs[i] < 0) {
-			Stuffs[i] = 99;
-		}
-		GetLevel()->GetUIManager()->SetStuff(i, Stuffs[i]);
-	}
-
 	if (!(GameEngineInput::GetInst()->IsPress("PlayerUp") || GameEngineInput::GetInst()->IsPress("PlayerDown")))
 		PlayerVertical -= (PlayerVertical / fabs(PlayerVertical)) * (Speed * Slope) * _DeltaTime;
 	if (!(GameEngineInput::GetInst()->IsPress("PlayerLeft") || GameEngineInput::GetInst()->IsPress("PlayerRight")))
@@ -398,7 +395,16 @@ void Player::Update(float _DeltaTime) {
 
 	static DWORD dwTime = GetTickCount64();
 	if (dwTime < GetTickCount64()) {
-		dwTime = GetTickCount64() + 10;
+		dwTime = GetTickCount64() + 20;
+
+		for (int i = 0; i < _countof(Stuffs); i++) {
+			Stuffs[i] -= 1;
+
+			if (Stuffs[i] < 0) {
+				Stuffs[i] = 99;
+			}
+			GetLevel()->GetUIManager()->SetStuff(i, Stuffs[i]);
+		}
 		//Font->SetText(to_string(GetVertical()) + ", " + to_string(GetHorizontal()));
 	}
 

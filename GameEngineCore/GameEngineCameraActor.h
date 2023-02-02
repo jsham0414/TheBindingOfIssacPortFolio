@@ -1,6 +1,7 @@
 #pragma once
 #include "GameEngineActor.h"
 #include "GameEngineCamera.h"
+#include <thread>
 
 // Ό³Έν :
 class GameEngineLevel;
@@ -32,7 +33,11 @@ public:
 
 	void Update(float _DeltaTime) override;
 
+	void MapChange(float4 _DestPos);
+	void MapChangeLerp(float4 _DestPos);
+
 protected:
+
 	void Start() override;
 	void End() override;
 

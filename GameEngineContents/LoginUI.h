@@ -21,7 +21,7 @@ protected:
 	void End() override;
 
 private:
-
+	int MenuIndex;
 	float TimeAngle;
 };
 

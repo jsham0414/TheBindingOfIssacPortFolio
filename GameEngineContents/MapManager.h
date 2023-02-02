@@ -32,6 +32,8 @@ public:
 	}
 
 	void MoveRoom(int _Direction = 0);
+	void MoveRoomPos(float4 _DestPos, int _Direction = 0);
+	void TurnOffLastRoom();
 
 protected:
 	void Start() override;
@@ -39,6 +41,7 @@ protected:
 	void End() {}
 
 	PlayMap* GetCurrentMap();
+	PlayMap* GetMap(int _Index);
 	int GetCurMapEnemyCount();
 	bool PlayerCollision(GameEngineCollision* _This, GameEngineCollision* _Other);
 	void LoadMapFormData();
@@ -57,11 +60,14 @@ private:
 	int StartPos;
 	int SpecialRoomCount;
 	int CurRoomIndex;
+	int LastRoomIndex;
 	const static int Move[4];
 
 	std::vector<int> EndRoom;
 	std::queue<int> RoomQueue;
 	std::map<int, PlayMap*> PlayMaps;
 	std::map<int, std::vector<std::string>> MapFormData;
+
+	std::thread MapMoveThread;
 };
 

@@ -20,7 +20,7 @@ MapManager::MapManager() {
 	StartPos = 45;
 
 	SpecialRoomCount = 3;
-
+	LastRoomIndex = -1;
 }
 
 MapManager::~MapManager() {
@@ -37,10 +37,25 @@ void MapManager::Start() {
 }
 
 PlayMap* MapManager::GetCurrentMap() {
-	if (PlayMaps.empty() || PlayMaps.at(CurRoomIndex) == nullptr)
+	Mutex.lock();
+	if (PlayMaps.empty() || PlayMaps.at(CurRoomIndex) == nullptr) {
+		Mutex.unlock();
 		return nullptr;
+	}
+	Mutex.unlock();
 
 	return PlayMaps[CurRoomIndex];
+}
+
+PlayMap* MapManager::GetMap(int _Index) {
+	Mutex.lock();
+	if (PlayMaps.empty() || PlayMaps.at(_Index) == nullptr) {
+		Mutex.unlock();
+		return nullptr;
+	}
+	Mutex.unlock();
+
+	return PlayMaps[_Index];
 }
 
 int MapManager::GetCurMapEnemyCount() {
@@ -75,6 +90,7 @@ void MapManager::Update(float _DeltaTime) {
 bool MapManager::PlayerCollision(GameEngineCollision* _This, GameEngineCollision* _Other) {
 	int Index = -1;
 
+	LastRoomIndex = CurRoomIndex;
 	PlayMap* CurMap = GetCurrentMap();
 	if (CurMap == nullptr)
 		return false;
@@ -86,7 +102,6 @@ bool MapManager::PlayerCollision(GameEngineCollision* _This, GameEngineCollision
 			continue;
 		if (_Door->GetState().GetCurStateStateName() == "Battle")
 			continue;
-
 		
 		Index = iter->first;
 	}
@@ -94,23 +109,9 @@ bool MapManager::PlayerCollision(GameEngineCollision* _This, GameEngineCollision
 	if (Index == -1)
 		return true;
 
-	MoveRoom((Index + 1) * 2);
+	MapMoveThread = std::thread(&MapManager::MoveRoom, this, (Index + 1) * 2);
+	MapMoveThread.detach();
 	
-	// ¸ÊÀÌ ¹Ù²î¾úÀ¸´Ï »õ ¸ÊÀ» °¡Á®¿Â´Ù.
-	Doors = GetCurrentMap()->GetDoors();
-
-	int asd[4] = {
-		3, 2, 1, 0
-	};
-
-	auto NewDoor = Doors[asd[Index]];
-	if (NewDoor == nullptr)
-		return false;
-
-	auto NewPos = NewDoor->GetSpawnTransform()->GetWorldPosition();
-	NewPos.z = 0.f;
-	Player::GetMainPlayer()->GetTransform().SetWorldPosition(NewPos);
-
 	return true;
 }
 
@@ -240,6 +241,7 @@ void MapManager::RandomMapGenerate(GameEngineLevel* _Level) {
 				TempMap->GetRenderer()->SetTexture("start_000.png");
 				Player::GetMainPlayer()->GetTransform().SetWorldPosition(FixedPosition);
 			}
+			TempMap->Off();
 
 			PlayMaps.insert(make_pair(i, TempMap));
 
@@ -289,12 +291,6 @@ void MapManager::MoveRoom(int _Direction) {
 		break;
 	}
 
-	if (_Direction != 0) {
-		PlayMap* CurMap = GetCurrentMap();
-		CurMap->MapOff();
-		//Player::GetMainPlayer()->Attack(1);
-	}
-
 	if (PlayMaps.find(NextRoomIndex) == PlayMaps.end())
 		return;
 
@@ -311,7 +307,51 @@ void MapManager::MoveRoom(int _Direction) {
 	PlayMap* NewMap = PlayMaps.at(NextRoomIndex);
 	NewMap->MapOn(OpenCheck);
 
+	float4 DestPosition = NewMap->GetTransform().GetWorldPosition() + float4::BACK * 100.f;
+	if (_Direction == 0) {
+		GetLevel()->GetMainCameraActorTransform().SetWorldPosition(DestPosition);
+	} else {
+		Player::GetMainPlayer()->GetCollision()->Off();
+		GetLevel()->GetMainCameraActor()->MapChange(DestPosition);
+	}
+
 	CurRoomIndex = NextRoomIndex;
+
+	// ¸ÊÀÌ ¹Ù²î¾úÀ¸´Ï »õ ¸ÊÀ» °¡Á®¿Â´Ù.
+	auto& Doors = GetCurrentMap()->GetDoors();
+
+	int FixDir[4] = {
+		3, 2, 1, 0
+	};
+
+	int Index = _Direction / 2 - 1;
+
+	if (Index == -1)
+		return;
+
+	auto NewDoor = Doors[FixDir[Index]];
+	if (NewDoor == nullptr)
+		return;
+
+	auto NewPos = NewDoor->GetSpawnTransform()->GetWorldPosition();
+	NewPos.z = 0.f;
+	Player::GetMainPlayer()->GetTransform().SetWorldPosition(NewPos);
+}
+
+void MapManager::MoveRoomPos(float4 _DestPos, int _Direction) {
+	MoveRoom(_Direction);
+}
+
+void MapManager::TurnOffLastRoom() {
+	if (LastRoomIndex == -1)
+		return;
+
+	auto _LastRoom = GetMap(LastRoomIndex);
+	if (_LastRoom == nullptr) {
+		return;
+	}
+
+	_LastRoom->MapOff();
 }
 
 bool MapManager::Visit(int i) {

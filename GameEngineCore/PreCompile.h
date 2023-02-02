@@ -8,6 +8,7 @@
 #include <set>
 #include <vector>
 #include <chrono>
+#include <mutex>
 
 #include <Windows.h>
 
@@ -30,3 +31,5 @@
 #include "GameEngineLevel.h"
 #include <GameEngineBase/GameEngineDirectory.h>
 #include <GameEngineBase/GameEngineFile.h>
+
+#include <GameEngineCore/GameEngineGlobalVariable.h>

@@ -61,10 +61,6 @@ void GameEngineLevel::ActorUpdate(float _DeltaTime) {
 			if (false == Actor->IsUpdate()) {
 				continue;
 			}
-			if (Actor->GetOrder() >= 10000 && Actor->GetOrder() != MapManagerInstance->GetCurRoomOrder()) {
-				Actor->Off();
-				continue;
-			}
 			if (Actor->IsUpdateRef())
 				Actor->On();
 

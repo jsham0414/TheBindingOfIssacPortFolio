@@ -1,6 +1,7 @@
 #include "PreCompile.h"
 #include "GameEngineCameraActor.h"
 #include <GameEngineBase/GameEngineInput.h>
+#include "GameEngineContents/MapManager.h"
 
 GameEngineCameraActor::GameEngineCameraActor()
 	: CameraComponent(nullptr)
@@ -85,6 +86,34 @@ void GameEngineCameraActor::Update(float _DeltaTime)
 
 		GetTransform().SetAddWorldRotation(RotMouseDir * RotSpeed);
 	}
+}
+
+void GameEngineCameraActor::MapChange(float4 _DestPos) {
+	auto Thread = std::thread(&GameEngineCameraActor::MapChangeLerp, this, _DestPos);
+	Thread.detach();
+}
+
+void GameEngineCameraActor::MapChangeLerp(float4 _DestPos) {
+	DWORD LastTime = GetTickCount64();
+	float4 LastPos = GetTransform().GetWorldPosition();
+	float fTime = 0.f;
+	while (fTime < 1.f) {
+		DWORD NowTime = GetTickCount64() - LastTime;
+		float4 NewPos;
+		fTime = fmin((float)NowTime / 500.f, 1.f);
+		NewPos.x = std::lerp(LastPos.x, _DestPos.x, fTime);
+		NewPos.y = std::lerp(LastPos.y, _DestPos.y, fTime);
+
+		Mutex.lock();
+		GetTransform().SetWorldPosition(NewPos);
+		Mutex.unlock();
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+
+	GetLevel()->GetMapManager()->TurnOffLastRoom();
+
+	Player::GetMainPlayer()->GetCollision()->On();
 }
 
 void GameEngineCameraActor::End() 

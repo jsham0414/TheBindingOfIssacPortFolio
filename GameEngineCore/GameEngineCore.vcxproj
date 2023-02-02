@@ -84,6 +84,7 @@
       <SubType>
       </SubType>
     </ClInclude>
+    <ClInclude Include="GameEngineGlobalVariable.h" />
     <ClInclude Include="GameEngineGUI.h">
       <SubType>
       </SubType>
@@ -270,6 +271,7 @@
       <SubType>
       </SubType>
     </ClCompile>
+    <ClCompile Include="GameEngineGlobalVariable.cpp" />
     <ClCompile Include="GameEngineGUI.cpp">
       <SubType>
       </SubType>

@@ -9,7 +9,7 @@ Wall::~Wall() {
 }
 
 void Wall::Start() {
-	Renderer = CreateComponent<GameEngineTextureRenderer>();
+	//Renderer = CreateComponent<GameEngineTextureRenderer>();
 	Collision = CreateComponent<GameEngineCollision>();
 	float4 Color = float4::RED;
 	Color.a = 0.2f;

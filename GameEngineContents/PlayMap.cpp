@@ -58,8 +58,6 @@ void PlayMap::UpdateCollision(function<bool(GameEngineCollision*, GameEngineColl
 
 void PlayMap::MapOn(int* _DoorOpen) {
 	On();
-	GetLevel()->GetMainCameraActorTransform().SetWorldPosition(GetTransform().GetWorldPosition() + float4::BACK * 100.f);
-
 	for (int i = 0; i < Doors.size(); i++) {
 		Door* _Door = Doors[i];
 		GameRoomType RoomType = static_cast<GameRoomType>(_DoorOpen[i]);

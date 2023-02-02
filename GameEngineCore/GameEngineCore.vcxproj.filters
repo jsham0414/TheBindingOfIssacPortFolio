@@ -171,6 +171,7 @@
     <ClInclude Include="GameEngineInstanceFactory.h">
       <Filter>Contents</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngineGlobalVariable.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameEngineActor.cpp">
@@ -330,6 +331,7 @@
     <ClCompile Include="GameEngineInstanceFactory.cpp">
       <Filter>Contents</Filter>
     </ClCompile>
+    <ClCompile Include="GameEngineGlobalVariable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Object">

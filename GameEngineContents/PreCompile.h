@@ -10,6 +10,7 @@
 #include <vector>
 #include <chrono>
 #include <queue>
+#include <thread>
 
 #include <Windows.h>
 
@@ -42,7 +43,7 @@
 #include <GameEngineCore/GameEngineFontRenderer.h>
 #include <GameEngineCore/GameEngineCoreDebug.h>
 
-
+#include <GameEngineCore/GameEngineGlobalVariable.h>
 #include "GlobalContentsValue.h"
 
 #include "TileMapActor.h"
@@ -50,8 +51,6 @@
 #define ROOM(_Idx) 10000 + _Idx
 
 using namespace std;
-
-
 
 template <class T>
 struct Node {
