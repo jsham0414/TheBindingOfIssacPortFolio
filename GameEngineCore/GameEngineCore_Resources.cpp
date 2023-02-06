@@ -110,7 +110,7 @@ void EngineSubSetting()
 
 		Desc.DepthEnable = true;
 		Desc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
-		Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
+		Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ZERO;// D3D11_DEPTH_WRITE_MASK_ALL;
 		Desc.StencilEnable = false;
 		GameEngineDepthStencil::Create("EngineBaseDepth", Desc);
 	}
@@ -120,7 +120,7 @@ void EngineSubSetting()
 
 		Desc.DepthEnable = true;
 		Desc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_ALWAYS;
-		Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
+		Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ZERO;// D3D11_DEPTH_WRITE_MASK_ALL;
 		Desc.StencilEnable = false;
 		GameEngineDepthStencil::Create("AlwaysDepth", Desc);
 	}

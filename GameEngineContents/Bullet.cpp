@@ -31,26 +31,31 @@ void Bullet::SetDirection(int _Direction) {
 		NewAngle = 90;
 		break;
 	}
-
 	SetAngle(NewAngle);
+}
+
+void Bullet::CreateFrameAnimation() {
+	Renderer->CreateFrameAnimationCutTexture("Idle", FrameAnimation_DESC("Tears.png", 5, 5, 0.1f, false));
+	Renderer->CreateFrameAnimationCutTexture("Dead", FrameAnimation_DESC("effect_015_tearpoofb.png", 0, 15, 0.03f, false));
 }
 
 void Bullet::Start() {
 	Renderer = CreateComponent<GameEngineTextureRenderer>();
-	Renderer->GetTransform().SetWorldScale({ 20, 20, 1 }); // 24
-	if (Renderer->GetCurTexture() == nullptr)
-		Renderer->SetTexture("Tear.png");
+	CreateFrameAnimation();
+	Renderer->ChangeFrameAnimation("Idle");
+	Renderer->ScaleToCutTexture();
 
 	Collision = CreateComponent<GameEngineCollision>();
-	Collision->GetTransform().SetLocalScale({ 20.0f, 20.0f, 1.0f });
+	Collision->GetTransform().SetLocalScale(Renderer->GetTransform().GetWorldScale() / 3.f);
 	Collision->ChangeOrder(OBJECTORDER::Projectile);
+	Collision->SetMass(1000.f);
 
 	StateManager.CreateStateMember("Idle"
 		, std::bind(&Bullet::IdleStateUpdate, this, std::placeholders::_1, std::placeholders::_2)
 		, std::bind(&Bullet::IdleStateStart, this, std::placeholders::_1)
 	);
 
-	StateManager.CreateStateMember("Death"
+	StateManager.CreateStateMember("Dead"
 		, std::bind(&Bullet::DeathStateUpdate, this, std::placeholders::_1, std::placeholders::_2)
 		, std::bind(&Bullet::DeathStateStart, this, std::placeholders::_1)
 	);
@@ -65,9 +70,17 @@ bool Bullet::MonsterCollision(GameEngineCollision* _This, GameEngineCollision* _
 	if (_This->GetOrder() == _Other->GetOrder()) {
 		return false;
 	}
+	//TODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODO
+	if (_Other->GetOrder() == (int)OBJECTORDER::Monster) {
+		auto Infos = _Other->GetActor()->GetConvertChilds<GameEngineActorInfo>();
+		
+	} else if (_Other->GetOrder() == (int)OBJECTORDER::Player) {
+		Player* _Player = reinterpret_cast<Player*>(_Other->GetActor());
+
+	}
 
 	//_Other->GetActor()->Death();
-	StateManager.ChangeState("Death");
+	StateManager.ChangeState("Dead");
 	return true;
 }
 
@@ -89,24 +102,34 @@ void Bullet::IdleStateStart(const StateInfo& _Info) {
 void Bullet::IdleStateUpdate(float _DeltaTime, const StateInfo& _Info) {
 	Velocity -= Gravity * _DeltaTime;
 	Accumulate += Velocity * _DeltaTime;
-	GetTransform().SetWorldMove(float4::UP * Velocity * _DeltaTime);
+	GetTransform().SetLocalMove(float4::UP * Velocity * _DeltaTime);
+
 	GetTransform().SetWorldMove(GetTransform().GetRightVector() * Speed * _DeltaTime);
 
 	if (Velocity <= 0 && Accumulate < -30.f) {
-		StateManager.ChangeState("Death");
+		StateManager.ChangeState("Dead");
 		return;
 	}
 
 	OBJECTORDER Order = static_cast<OBJECTORDER>(GetOrder());
 	Order = Order == OBJECTORDER::Monster ? OBJECTORDER::Player : OBJECTORDER::Monster;
-	Collision->IsCollision(CollisionType::CT_SPHERE, Order, CollisionType::CT_SPHERE,
+	Collision->IsCollisionRigidBody(CollisionType::CT_SPHERE, Order, CollisionType::CT_SPHERE,
+		std::bind(&Bullet::MonsterCollision, this, std::placeholders::_1, std::placeholders::_2)
+	);
+
+	Collision->IsCollisionRigidBody(CollisionType::CT_OBB, OBJECTORDER::AirWall, CollisionType::CT_OBB,
 		std::bind(&Bullet::MonsterCollision, this, std::placeholders::_1, std::placeholders::_2)
 	);
 }
 
 void Bullet::DeathStateStart(const StateInfo& _Info) {
-	Death();
+	Renderer->ChangeFrameAnimation("Dead");
+	Renderer->SetScaleRatio(1.5f);
+	Renderer->ScaleToCutTexture();
+	Renderer->GetTransform().SetLocalRotation(float4(0, 0, rand() % 360));
 }
 
 void Bullet::DeathStateUpdate(float _DeltaTime, const StateInfo& _Info) {
+	if (Renderer->CurAnimationEnd())
+		Death();
 }

@@ -32,6 +32,7 @@ GameEngineCollisionFunctionInit Inst;
 GameEngineCollision::GameEngineCollision() 
 	: DebugType(CollisionType::CT_SPHERE)
 	, Color(1.0f, 0.0f, 0.0f, 0.5f)
+	, Mass(100.f), Power(100.f)
 {
 }
 
@@ -243,13 +244,16 @@ bool GameEngineCollision::IsCollisionRigidBody(CollisionType _ThisType, int _Gro
 					}
 				}
 
+				float _SubMass;
 				if (!this->GetTransform().GetStatic()) {
 					GetActor()->GetTransform().SetPower(float4::ZERO);
-					GetActor()->GetTransform().SetWorldMove(-Impurse);
+					_SubMass = Collision->GetMass() / (this->Mass + Collision->GetMass());
+					GetActor()->GetTransform().SetWorldMove(-Impurse * _SubMass);
 				}
 				if (!Collision->GetTransform().GetStatic()) {
 					Collision->GetActor()->GetTransform().SetPower(float4::ZERO);
-					Collision->GetActor()->GetTransform().SetWorldMove(Impurse);
+					_SubMass = this->Mass / (this->Mass + Collision->GetMass());
+					Collision->GetActor()->GetTransform().SetWorldMove(Impurse * _SubMass);
 				}
 			}
 

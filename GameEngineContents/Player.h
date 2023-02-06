@@ -60,7 +60,8 @@ protected:
 	GameEngineTextureRenderer* HeadRenderer, *BodyRenderer;
 	GameEngineTextureRenderer* HPRenderer;
 
-	float PlayerHorizontal, PlayerVertical;
+	float4 Velocity;
+	float4 Axis;
 	float Slope;
 	float Accel;
 
@@ -72,10 +73,14 @@ protected:
 
 	std::vector<GameEngineTextureRenderer*> AllPartsRenderer;
 
-	void IdleStart(const StateInfo& _Info);
 	float GetVertical();
 	float GetHorizontal();
+
+	void IdleStart(const StateInfo& _Info);
 	void IdleUpdate(float _DeltaTime, const StateInfo& _Info);
+
+	void HitStart(const StateInfo& _Info);
+	void HitUpdate(float _DeltaTime, const StateInfo& _Info);
 
 	void HeadAttackStart(const StateInfo& _Info);
 

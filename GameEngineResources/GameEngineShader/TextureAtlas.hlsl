@@ -85,7 +85,7 @@ float4 TextureAtlas_PS(Output _Input) : SV_Target0
     
     float4 TexColor = Tex.Sample(Smp, _Input.Tex.xy);
     
-    if (TexColor.a == 0)
+    if (TexColor.a <= 0.0)
     {
         clip(-1);
     }

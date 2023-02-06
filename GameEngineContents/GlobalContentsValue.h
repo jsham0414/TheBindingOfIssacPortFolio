@@ -10,6 +10,7 @@ enum class OBJECTORDER {
 	TileMapObject,
 	Manager,
 	Wall,
+	AirWall,
 	
 	UI = 1000,
 };

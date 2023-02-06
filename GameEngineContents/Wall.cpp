@@ -10,7 +10,7 @@ Wall::~Wall() {
 
 void Wall::Start() {
 	//Renderer = CreateComponent<GameEngineTextureRenderer>();
-	Collision = CreateComponent<GameEngineCollision>();
+	Collision = CreateComponent<GameEngineCollision>(GetOrder());
 	float4 Color = float4::RED;
 	Color.a = 0.2f;
 	Collision->SetDebugSetting(CollisionType::CT_AABB2D, Color);

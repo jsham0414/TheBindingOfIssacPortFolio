@@ -25,6 +25,7 @@ void UINumber::ChangeValue(int _Value) {
 			auto NewRenderer = CreateComponent<GameEngineTextureRenderer>();
 			NewRenderer->ChangeCamera(CAMERAORDER::UICAMERA);
 			NewRenderer->SetFrameAni(Renderer->GetFrameAni());
+			NewRenderer->SetScaleRatio(1.f);
 			RendererList.AddNode(NewRenderer);
 		} else if (SubDigit < 0) {
 			RendererList.GetTail()->Data->Off();
@@ -39,6 +40,7 @@ void UINumber::ChangeValue(int _Value) {
 		_Renderer->On();
 		int IntNum = ValueToString.c_str()[i] - (int)'0';
 		_Renderer->ChangeFrameAnimation(to_string(IntNum));
+		_Renderer->SetScaleRatio(1.f);
 		_Renderer->ScaleToCutTexture(IntNum);
 		_Renderer->GetTransform().SetLocalPosition({ 18 + i * (_Renderer->GetTransform().GetWorldScale().x - 2), 0.f });
 		NumRenderer = NumRenderer->NextNode;
@@ -48,6 +50,7 @@ void UINumber::ChangeValue(int _Value) {
 void UINumber::Start() {
 	Renderer = CreateComponent<GameEngineTextureRenderer>();
 	Renderer->ChangeCamera(CAMERAORDER::UICAMERA);
+	Renderer->SetScaleRatio(1.f);
 
 	CreateFrameAnimation();
 }

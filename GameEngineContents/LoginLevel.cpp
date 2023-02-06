@@ -61,6 +61,8 @@ void LoginLevel::LevelStartEvent()
 		{
 			GameEngineTexture::Load(Shaders[i].GetFullPath());
 		}
+
+		LoginUI* Ptr = CreateActor<LoginUI>(GameObjectGroup::UI);
 	}
 
 
@@ -74,8 +76,6 @@ void LoginLevel::LevelStartEvent()
 
 	//}
 
-	LoginUI* Ptr = CreateActor<LoginUI>(GameObjectGroup::UI);
-	Ptr->CreateComponent<GameEngineCollision>();
 
 
 }

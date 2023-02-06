@@ -37,6 +37,7 @@
 #include <GameEngineCore/GameEngineConstantBuffer.h>
 #include <GameEngineCore/GameEngineDevice.h>
 #include <GameEngineCore/GameEngineTextureRenderer.h>
+#include <GameEngineCore/GameEngineActorInfo.h>
 #include <GameEngineCore/GameEngineLevel.h>
 #include <GameEngineCore/GameEngineCollision.h>
 #include <GameEngineCore/GameEngineFont.h>

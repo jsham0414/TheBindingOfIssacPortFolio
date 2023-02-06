@@ -83,12 +83,12 @@ void PlayLevel::LoadTexture() {
 
 			if (Shaders[i].GetFileName() == "issac_head.png")
 				GameEngineTexture::Cut(Shaders[i].GetFileName(), 3, 4);
+			if (Shaders[i].GetFileName() == "issac_body_horizontal.png")
+				GameEngineTexture::Cut(Shaders[i].GetFileName(), 8, 2);
+			if (Shaders[i].GetFileName() == "issac_body_vertical.png")
+				GameEngineTexture::Cut(Shaders[i].GetFileName(), 10, 1);
 			if (Shaders[i].GetFileName() == "WoodDoor.png")
 				GameEngineTexture::Cut(Shaders[i].GetFileName(), 4, 1);
-			if (Shaders[i].GetFileName() == "issac_body_horizontal.png")
-				GameEngineTexture::Cut(Shaders[i].GetFileName(), 5, 2);
-			if (Shaders[i].GetFileName() == "issac_body_vertical.png")
-				GameEngineTexture::Cut(Shaders[i].GetFileName(), 5, 2);
 			if (Shaders[i].GetFileName() == "Horf.png")
 				GameEngineTexture::Cut(Shaders[i].GetFileName(), 2, 2);
 			if (Shaders[i].GetFileName() == "Heart.png")
@@ -97,6 +97,12 @@ void PlayLevel::LoadTexture() {
 				GameEngineTexture::Cut(Shaders[i].GetFileName(), 3, 1);
 			if (Shaders[i].GetFileName() == "Number.png")
 				GameEngineTexture::Cut(Shaders[i].GetFileName(), 10, 1);
+			if (Shaders[i].GetFileName() == "TearSplash.png")
+				GameEngineTexture::Cut(Shaders[i].GetFileName(), 6, 1);
+			if (Shaders[i].GetFileName() == "effect_015_tearpoofb.png")
+				GameEngineTexture::Cut(Shaders[i].GetFileName(), 4, 4);
+			if (Shaders[i].GetFileName() == "tears.png")
+				GameEngineTexture::Cut(Shaders[i].GetFileName(), 8, 4);
 		}
 	}
 }

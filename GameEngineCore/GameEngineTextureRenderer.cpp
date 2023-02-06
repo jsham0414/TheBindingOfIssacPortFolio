@@ -118,7 +118,7 @@ GameEngineTextureRenderer::GameEngineTextureRenderer()
 	, CurTex(nullptr)
 	, PivotMode(PIVOTMODE::CENTER)
 	, ScaleMode(SCALEMODE::CUSTOM)
-	, ScaleRatio(1.0f)
+	, ScaleRatio(2.0f)
 {
 	FrameAni = new std::map<std::string, FrameAnimation>();
 }
@@ -154,8 +154,8 @@ void GameEngineTextureRenderer::Start()
 	GameEngineDefaultRenderer::Start();
 
 	PushRendererToMainCamera();
-
 	SetTextureRendererSetting();
+	SetSamplingModePoint();
 }
 
 void GameEngineTextureRenderer::SetSamplingModePoint()
@@ -264,6 +264,8 @@ void GameEngineTextureRenderer::SetTexture(GameEngineTexture* _Texture, UINT _In
 	}
 
 	SetTexture(_Texture);
+	if (CurTex->GetCutCount() == 0)
+		return;
 	SetFrame(_Index);
 }
 

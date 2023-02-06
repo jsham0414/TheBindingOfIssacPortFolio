@@ -18,9 +18,7 @@ Horf::~Horf() {
 void Horf::Start() {
 	Renderer = CreateComponent<GameEngineTextureRenderer>();
 	Renderer->GetTransform().SetWorldScale({ 32 * 1.5f, 32 * 1.5f, 1 });
-	//GetTransform().SetWorldPosition({ 400.0f, 200.f, 0.0f });
 	
-
 	CreateFrameAnimation();
 
 	Renderer->ChangeFrameAnimation("Idle");
@@ -46,6 +44,9 @@ void Horf::Start() {
 	float4 Color = float4::RED;
 	Color.a = 0.2f;
 	Collision->SetDebugSetting(CollisionType::CT_AABB, Color);
+
+	GameEngineActorInfo* ActorInfo = CreateComponent<GameEngineActorInfo>();
+	ActorInfo->GetInfo().SetMaxHp(10.f);
 }
 
 void Horf::Update(float _DeltaTime) {

@@ -5,10 +5,12 @@
 #include "GameEngineTransformBase.h"
 
 
+class GlobalContentsValue;
 // 설명 : 화면에 등장하는 모든것을 표현하기 위한 클래스
 class GameEngineComponent;
 class GameEngineTransformComponent;
 class GameEngineTextureRenderer;
+class GameEngineActorInfo;
 class GameEngineActor :
 	public GameEngineNameObject,
 	public GameEngineUpdateObject,
@@ -40,10 +42,11 @@ public:
 	}
 
 	template<typename ComponentType>
-	ComponentType* CreateComponent(const std::string& _Name = "")
+	ComponentType* CreateComponent(int _Order = 0, const std::string& _Name = "")
 	{
 		GameEngineComponent* NewComponent = new ComponentType();
 		NewComponent->SetName(_Name);
+		NewComponent->SetOrder(_Order);
 		NewComponent->SetParent(this);
 		NewComponent->Start();
 
@@ -88,6 +91,7 @@ protected:
 
 	GameEngineTextureRenderer* Renderer;
 	GameEngineCollision* Collision;
+	GameEngineActorInfo* ActorInfo;
 
 
 private:

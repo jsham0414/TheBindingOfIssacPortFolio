@@ -33,8 +33,16 @@ public:
 
 	void Update(float _DeltaTime) override;
 
+	bool CameraMove(float4 _DestPos, float _Time = 1.f);
+
+	void CameraMoveLerp(float4 _DestPos, float _Time);
+
 	void MapChange(float4 _DestPos);
 	void MapChangeLerp(float4 _DestPos);
+
+	bool IsMoving() {
+		return CameraMoving;
+	}
 
 protected:
 
@@ -45,6 +53,7 @@ private:
 	bool FreeCameraMode;
 	float Speed;
 	float RotSpeed;
+	bool CameraMoving;
 
 	GameEngineCamera* CameraComponent;
 	GameEngineTransform OriginTrans;

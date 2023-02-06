@@ -74,6 +74,22 @@ public:
 		DebugCameraOrder = _Order;
 	}
 
+	float GetMass() {
+		return Mass;
+	}
+
+	void SetMass(float _Mass) {
+		Mass = _Mass;
+	}
+
+	float GetPower() {
+		return Power;
+	}
+
+	void SetPower(float _Power) {
+		Power = _Power;
+	}
+
 protected:
 
 private:
@@ -81,6 +97,7 @@ private:
 
 	CollisionType DebugType;
 	float4 Color;
+	float Mass, Power;
 
 	void Start() override;
 };

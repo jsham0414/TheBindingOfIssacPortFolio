@@ -7,6 +7,7 @@ GameEngineCameraActor::GameEngineCameraActor()
 	: CameraComponent(nullptr)
 	, RotSpeed(180.0f)
 	, Speed(500.0f)
+	, CameraMoving(false)
 {
 }
 
@@ -86,6 +87,39 @@ void GameEngineCameraActor::Update(float _DeltaTime)
 
 		GetTransform().SetAddWorldRotation(RotMouseDir * RotSpeed);
 	}
+}
+
+bool GameEngineCameraActor::CameraMove(float4 _DestPos, float _Time) {
+	if (CameraMoving == true)
+		return false;
+
+	auto Thread = std::thread(&GameEngineCameraActor::CameraMoveLerp, this, _DestPos, _Time);
+	Thread.detach();
+	return true;
+}
+
+void GameEngineCameraActor::CameraMoveLerp(float4 _DestPos, float _Time) {
+	Mutex.lock();
+	CameraMoving = true;
+	Mutex.unlock();
+
+	DWORD LastTime = GetTickCount64();
+	float4 LastPos = GetTransform().GetWorldPosition();
+	float fTime = 0.f;
+	while (fTime < _Time) {
+		DWORD NowTime = GetTickCount64() - LastTime;
+		float4 NewPos;
+		fTime = fmin((float)NowTime / 500.f, _Time);
+		NewPos.x = std::lerp(LastPos.x, _DestPos.x, fTime / _Time);
+		NewPos.y = std::lerp(LastPos.y, _DestPos.y, fTime / _Time);
+
+		GetTransform().SetWorldPosition(NewPos);
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+	Mutex.lock();
+	CameraMoving = false;
+	Mutex.unlock();
 }
 
 void GameEngineCameraActor::MapChange(float4 _DestPos) {

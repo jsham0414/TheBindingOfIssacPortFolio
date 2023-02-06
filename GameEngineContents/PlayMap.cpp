@@ -46,13 +46,15 @@ void PlayMap::UpdateCollision(function<bool(GameEngineCollision*, GameEngineColl
 	for (int i = 0; i < Walls.size(); i++) {
 		Wall* _Wall = Walls[i];
 
-		_Wall->GetCollision()->IsCollisionRigidBody(CollisionType::CT_OBB2D, OBJECTORDER::Player, CollisionType::CT_OBB2D, _Function);
+		_Wall->GetCollision()->IsCollisionRigidBody(CollisionType::CT_OBB2D, OBJECTORDER::Player, CollisionType::CT_OBB2D);
+		_Wall->GetCollision()->IsCollisionRigidBody(CollisionType::CT_OBB2D, OBJECTORDER::Monster, CollisionType::CT_OBB2D);
 	}
 
 	for (auto iter = Doors.begin(); iter != Doors.end(); iter++) {
 		Door* _Door = iter->second;
 
 		_Door->GetCollision()->IsCollisionRigidBody(CollisionType::CT_OBB2D, OBJECTORDER::Player, CollisionType::CT_OBB2D, _Function);
+		_Door->GetCollision()->IsCollisionRigidBody(CollisionType::CT_OBB2D, OBJECTORDER::Monster, CollisionType::CT_OBB2D);
 	}
 }
 
@@ -105,7 +107,7 @@ void PlayMap::Start() {
 }
 
 void PlayMap::Initialize() {
-	RECT rc[12] = {
+	RECT rc[16] = {
 		{0, 390, 960, 300},
 		{550, 0, 300, 520},
 		{-550, 0, 300, 520},
@@ -118,15 +120,28 @@ void PlayMap::Initialize() {
 		{490, -280, 300, 520},
 		{-490, 280, 300, 520},
 		{-490, -280, 300, 520},
+
+		// ÃÑ¾Ë¿ë º®
+		{0, 380, 960, 300},
+		{500, 0, 300, 520},
+		{-500, 0, 300, 520},
+		{0, -340, 960, 300},
 	};
 
 	for (int i = 0; i < _countof(rc); i++) {
-		Wall* NewWall = GetLevel()->CreateActor<Wall>();
+		Wall* NewWall;
+
+		if (i < 12) {
+			NewWall = GetLevel()->CreateActor<Wall>(OBJECTORDER::Wall);
+		} else {
+			NewWall = GetLevel()->CreateActor<Wall>(OBJECTORDER::AirWall);
+		}
+
 		float4 Color = float4::GREEN;
 		Color.a = 0.2f;
 
 		//NewWall->SetParent(this);
-		NewWall->SetOrder((int)OBJECTORDER::Wall);
+		//NewWall->SetOrder((int));
 		NewWall->GetCollision()->SetDebugSetting(CollisionType::CT_AABB, Color);
 
 		float4 NewPos = GetTransform().GetWorldPosition();

@@ -82,7 +82,8 @@ public:
 	{
 		if (true == CutData.empty())
 		{
-			MsgBoxAssertString(GetNameCopy() + " 자르지 않은 텍스처를 사용하려고 했습니다.");
+			return float4::ZERO;
+			//MsgBoxAssertString(GetNameCopy() + " 자르지 않은 텍스처를 사용하려고 했습니다.");
 		}
 
 		if (CutData.size() <= _Index)

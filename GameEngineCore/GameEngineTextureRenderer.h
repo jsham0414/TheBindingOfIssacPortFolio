@@ -176,9 +176,9 @@ public:
 	void SetSamplingModePoint();
 	void SetSamplingModeLiner();
 
-	void SetScaleModeImage()
+	void SetScaleMode(SCALEMODE _ScaleMode)
 	{
-		ScaleMode = SCALEMODE::IMAGE;
+		ScaleMode = _ScaleMode;
 	}
 
 	void SetScaleRatio(float _Scale) 
@@ -227,7 +227,7 @@ public:
 
 	void ScaleToTexture();
 
-	void ScaleToCutTexture(int _Index);
+	void ScaleToCutTexture(int _Index = 0);
 
 	void CurAnimationPauseSwitch();
 

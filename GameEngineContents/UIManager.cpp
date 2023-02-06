@@ -17,6 +17,7 @@ void UIManager::Start() {
 	int PlayerHp = Player::GetMainPlayer()->GetHp();
 	for (int i = 0; i < PlayerMaxHp / 2; i++) {
 		HpInstance* _HpInst = GetLevel()->CreateActor<HpInstance>();
+		_HpInst->GetRenderer()->SetScaleRatio(1.f);
 		_HpInst->SetIndex(i);
 		_HpInst->SetParent(this);
 		HpList.AddNode(_HpInst);
@@ -28,6 +29,7 @@ void UIManager::Start() {
 	for (int i = 0; i < static_cast<int>(StuffType::End); i++) {
 		auto Stuff = GetLevel()->CreateActor<StuffGuider>();
 		Stuff->GetRenderer()->SetTexture("Stuffs.png", i);
+		Stuff->GetRenderer()->SetScaleRatio(1.f);
 		Stuff->GetRenderer()->ScaleToCutTexture(i);
 		Stuff->GetTransform().SetLocalPosition({ FixedPosition.x, FixedPosition.y - (i * 25.f) });
 		Stuff->ChangeValue(Player::GetMainPlayer()->GetStuff(i));

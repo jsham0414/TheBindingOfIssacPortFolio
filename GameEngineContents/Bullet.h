@@ -1,4 +1,5 @@
 #pragma once
+#include <GameEngineCore/GameEngineActorInfo.h>
 
 // Ό³Έν :
 class Bullet : public GameEngineActor {
@@ -15,6 +16,8 @@ public:
 
 	void SetDirection(int _Direction);
 
+	void CreateFrameAnimation();
+
 	GameEngineTextureRenderer* GetRenderer() const { 
 		return Renderer;
 	}
@@ -22,6 +25,14 @@ public:
 	void SetAngle(float _Angle) {
 		GetTransform().SetWorldRotation({ 0, 0, _Angle });
 		Angle = _Angle;
+	}
+
+	void SetVelocity(float _Velocity) {
+		Velocity = _Velocity;
+	}
+
+	void AddSpeed(float _Power) {
+		Speed += _Power;
 	}
 
 	GameEngineTransform SubTransform;

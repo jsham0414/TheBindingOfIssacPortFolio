@@ -20,7 +20,15 @@ protected:
 	void Update(float _DeltaTime) override;
 	void End() override;
 
+	void LogoUpdate(float _DeltaTime, const StateInfo& _Info);
+	void SelectUpdate(float _DeltaTime, const StateInfo& _Info);
+
+	void LogoStart(const StateInfo& _Info);
+	void SelectStart(const StateInfo& _Info);
+
 private:
+	GameEngineStateManager StateManager;
+
 	int MenuIndex;
 	float TimeAngle;
 };
