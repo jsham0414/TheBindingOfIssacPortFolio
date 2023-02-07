@@ -1,6 +1,7 @@
 #pragma once
+#include "Monster.h"
 
-class Horf : public GameEngineActor {
+class Horf : public Monster {
 public:
 	Horf();
 	~Horf();
@@ -10,6 +11,8 @@ public:
 	Horf(Horf&& _Other) noexcept = delete;
 	Horf& operator=(const Horf& _Other) = delete;
 	Horf& operator=(Horf&& _Other) noexcept = delete;
+
+	virtual void Damage();
 
 protected:
 	float Power;
@@ -22,14 +25,12 @@ protected:
 
 	bool ShootOnce;
 
-	void Start() override;
-	void Update(float _DeltaTime);
-	bool MonsterCollision(GameEngineCollision* _This, GameEngineCollision* _Other);
-	void End() {}
-	void CreateFrameAnimation();
-	Horf* Clone() {
+	virtual void Start();
+	virtual void Update(float _DeltaTime);
+	virtual void End() {}
 
-	};
+	bool MonsterCollision(GameEngineCollision* _This, GameEngineCollision* _Other);
+	void CreateFrameAnimation();
 
 	GameEngineStateManager StateManager;
 private:

@@ -16,7 +16,7 @@ Player::Player()
 	Axis = { 0.f };
 	Velocity = { 0.f };
 	Slope = 3.8f;
-	Accel = 3.2f;
+	Accel = 3.4f;
 	MainPlayer = this;
 	MaxHp = 6;
 	Hp = MaxHp;
@@ -67,7 +67,20 @@ void Player::CreateFrameAnimation() {
 	BodyRenderer->CreateFrameAnimationCutTexture("Issac_Body_Walk_Left", FrameAnimation_DESC("issac_body_horizontal.png", 0, 7, 0.1f));
 	BodyRenderer->CreateFrameAnimationCutTexture("Issac_Body_Walk_Right", FrameAnimation_DESC("issac_body_horizontal.png", 8, 15, 0.1f));
 	
-	BodyRenderer->CreateFrameAnimationCutTexture("Issac_Hit", FrameAnimation_DESC("Issac_hit.png", 0, 0, 0.1f));
+	BodyRenderer->CreateFrameAnimationCutTexture("Issac_Hit", FrameAnimation_DESC("Issac_hit2.png", 0, 0, 0.3f));
+}
+
+void Player::LoseHp(int _Value) {
+	Hp -= _Value;
+	GetLevel()->GetUIManager()->SetHp(Hp);
+}
+
+void Player::Assault(int _Value) {
+	if (Invincible)
+		return;
+
+	LoseHp(_Value);
+	StateManager.ChangeState("Hit");
 }
 
 void Player::Start() {
@@ -76,6 +89,7 @@ void Player::Start() {
 
 	BodyRenderer = CreateComponent<GameEngineTextureRenderer>();
 	BodyRenderer->GetTransform().SetLocalPosition({ 0.0f, 0.0f, 11.0f });
+	HeadRenderer->SetScaleMode(SCALEMODE::IMAGE);
 
 	KeyBinding();
 	CreateFrameAnimation();
@@ -127,9 +141,10 @@ void Player::Start() {
 		, std::bind(&Player::IdleStart, this, std::placeholders::_1)
 	);
 
-	StateManager.CreateStateMember("Hit"
-		, std::bind(&Player::HitUpdate, this, std::placeholders::_1, std::placeholders::_2)
-		, std::bind(&Player::HitStart, this, std::placeholders::_1)
+	StateManager.CreateStateMember("Hit",
+		std::bind(&Player::HitUpdate, this, std::placeholders::_1, std::placeholders::_2),
+		std::bind(&Player::HitStart, this, std::placeholders::_1),
+		std::bind(&Player::HitEnd, this, std::placeholders::_1)
 	);
 
 	int MyValue = 10;
@@ -150,18 +165,15 @@ void Player::IdleStart(const StateInfo& _Info) {
 }
 
 float Player::GetVertical() {
-	return trunc(Axis.y * 1000.f) / 1000.f;
+	return trunc(Axis.y * 100.f) / 100.f;
 }
 
 float Player::GetHorizontal() {
-	return trunc(Axis.x * 1000.f) / 1000.f;
+	return trunc(Axis.x * 100.f) / 100.f;
 }
 
 void Player::IdleUpdate(float _DeltaTime, const StateInfo& _Info) {
 	// HPRenderer->GetTransform().AddLocalScale(float4(-5.0f * _DeltaTime, 0.0f, 0.0f, 0.0f));
-	if (GetVertical() == 0.f && GetHorizontal() == 0.f) {
-		BodyRenderer->ChangeFrameAnimation("Issac_Body_Idle_Down");
-	}
 
 	if (true == GameEngineInput::GetInst()->IsPress("PlayerLeft") ||
 		true == GameEngineInput::GetInst()->IsPress("PlayerRight") ||
@@ -169,12 +181,51 @@ void Player::IdleUpdate(float _DeltaTime, const StateInfo& _Info) {
 		true == GameEngineInput::GetInst()->IsPress("PlayerDown")) {
 		//Renderer->CurAnimationReset();
 		StateManager.ChangeState("Move");
+		return;
 	}
+
+	if (GetVertical() == 0.f && GetHorizontal() == 0.f) {
+		BodyRenderer->ChangeFrameAnimation("Issac_Body_Idle_Down");
+	}
+}
+
+void Player::Blinking(DWORD _Duration) {
+	DWORD _CurTime = GetTickCount64();
+	while (_CurTime + _Duration > GetTickCount64()) {
+		Mutex.lock();
+		HeadRenderer->GetPixelData().MulColor.a = 0.f;
+		BodyRenderer->GetPixelData().MulColor.a = 0.f;
+		Mutex.unlock();
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		Mutex.lock();
+		HeadRenderer->GetPixelData().MulColor.a = 1.f;
+		BodyRenderer->GetPixelData().MulColor.a = 1.f;
+		Mutex.unlock();
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+	}
+	Mutex.lock();
+	Invincible = false;
+	Mutex.unlock();
+	// TODO : 수평으로 이동하다가 수직 이동 시 가속 붙게 수정
 }
 
 void Player::HitStart(const StateInfo& _Info) {
 	HeadRenderer->Off();
+	BodyRenderer->SetScaleRatio(2.f);
+	BodyRenderer->GetTransform().SetLocalPosition({ 0.f, 12.f, 11.f });
 	BodyRenderer->ChangeFrameAnimation("Issac_Hit");
+	BodyRenderer->ScaleToCutTexture();
+
+	Invincible = true;
+	thread(&Player::Blinking, this, 1000).detach();
+}
+
+void Player::HitEnd(const StateInfo& _Info) {
+	HeadRenderer->On();
+	BodyRenderer->SetScaleRatio(2.0f);
+	BodyRenderer->GetTransform().SetLocalPosition({ 0.f, 0.f, 11.f });
+	BodyRenderer->ChangeFrameAnimation("Issac_Body_Idle_Down");
+	BodyRenderer->ScaleToCutTexture();
 }
 
 void Player::HitUpdate(float _DeltaTime, const StateInfo& _Info) {
@@ -227,11 +278,6 @@ void Player::HeadAttackUpdate(float _DeltaTime, const StateInfo& _Info) {
 		if (LastTime > GetTickCount64()) {
 			return;
 		}
-
-
-		Hp--;
-		if (Hp < 0) Hp = MaxHp;
-		GetLevel()->GetUIManager()->SetHp(Hp);
 
 		LastTime = GetTickCount64() + Delay;
 		Bullet* NewBullet = GetLevel()->CreateActor<Bullet>(GetOrder());
@@ -324,14 +370,6 @@ void Player::HeadIdleUpdate(float _DeltaTime, const StateInfo& _Info) {
 //}
 
 void Player::MoveUpdate(float _DeltaTime, const StateInfo& _Info) {
-	//if (_Info.StateTime >= 2.0f)
-	//{
-	//	StateManager.ChangeState("Idle");
-	//	return;
-	//}
-
-	// GameEngineDebug::DebugSphereRender();
-
 	if (false == GameEngineInput::GetInst()->IsPress("PlayerLeft") &&
 		false == GameEngineInput::GetInst()->IsPress("PlayerRight") &&
 		false == GameEngineInput::GetInst()->IsPress("PlayerUp") &&
@@ -340,24 +378,6 @@ void Player::MoveUpdate(float _DeltaTime, const StateInfo& _Info) {
 		return;
 	}
 
-	//ImGui::Text(to_string(PlayerHorizontal).c_str());
-	//ImGui::Text(to_string(PlayerVertical).c_str());
-	if (GameEngineInput::GetInst()->IsPress("PlayerLeft")) {
-		if (Axis.x > 0.f) Axis.x *= 0.8f;
-		Axis.x -= (Accel) * _DeltaTime;
-	}
-	if (GameEngineInput::GetInst()->IsPress("PlayerRight")) {
-		if (Axis.x < 0.f) Axis.x *= 0.8f;
-		Axis.x += (Accel) * _DeltaTime;
-	}
-	if (GameEngineInput::GetInst()->IsPress("PlayerUp")) {
-		if (Axis.y < 0.f) Axis.y *= 0.8f;
-		Axis.y += (Accel) * _DeltaTime;
-	}
-	if (GameEngineInput::GetInst()->IsPress("PlayerDown")) {
-		if (Axis.y > 0.f) Axis.y *= 0.8f;
-		Axis.y -= (Accel) * _DeltaTime;
-	}
 	if (GameEngineInput::GetInst()->IsPress("PlayerDown")) {
 		BodyRenderer->ChangeFrameAnimation("Issac_Body_Walk_Down");
 	} else if (GameEngineInput::GetInst()->IsPress("PlayerUp")) {
@@ -367,53 +387,18 @@ void Player::MoveUpdate(float _DeltaTime, const StateInfo& _Info) {
 	} else if (GameEngineInput::GetInst()->IsPress("PlayerLeft")) {
 		BodyRenderer->ChangeFrameAnimation("Issac_Body_Walk_Left");
 	}
-
-	//PlayerHorizontal, PlayerVertical;
-	//StateManager.ChangeState("Move");
-
-	//if (true == GameEngineInput::GetInst()->IsPress("PlayerLeft"))
-	//{
-	//	GetTransform().SetWorldMove(GetTransform().GetLeftVector() * (Speed * PlayerHorizontal) * _DeltaTime);
-	//	//Renderer->GetTransform().PixLocalNegativeX();
-	//}
-
-	//if (true == GameEngineInput::GetInst()->IsPress("PlayerRight"))
-	//{
-	//	GetTransform().SetWorldMove(GetTransform().GetRightVector() * (Speed * PlayerHorizontal) * _DeltaTime);
-	//	//Renderer->GetTransform().PixLocalPositiveX();
-	//	// Renderer->GetColorData().MulColor.a -= _DeltaTime;
-	//}
-	//if (true == GameEngineInput::GetInst()->IsPress("PlayerUp"))
-	//{
-	//	GetTransform().SetWorldMove(GetTransform().GetUpVector() * (Speed * PlayerVertical) * _DeltaTime);
-	//}
-	//if (true == GameEngineInput::GetInst()->IsPress("PlayerDown"))
-	//{
-	//	GetTransform().SetWorldMove(GetTransform().GetDownVector() * (Speed * PlayerVertical) * _DeltaTime);
-	//}
-
-
-	//if (true == GameEngineInput::GetInst()->IsPress("PlayerF"))
-	//{
-	//	GetTransform().SetWorldMove(GetTransform().GetForwardVector() * Speed * _DeltaTime);
-	//}
-	//if (true == GameEngineInput::GetInst()->IsPress("PlayerB"))
-	//{
-	//	GetTransform().SetWorldMove(GetTransform().GetBackVector() * Speed * _DeltaTime);
-	//}
-
 }
 
 bool Player::MonsterCollision(GameEngineCollision* _This, GameEngineCollision* _Other) {
-	//_Other->GetActor()->Death();
 	StateManager.ChangeState("Hit");
+	LoseHp();
 	return true;
 }
 
 
 
 void Player::Attack(int _Direction) {
-
+	
 }
 
 void Player::PlayerSetPosition(float4 _NewPos) {
@@ -438,12 +423,12 @@ void Player::Update(float _DeltaTime) {
 
 	// 피타고라스
 	if (GetHorizontal() != 0.f) {
-		float _NewSpeed = Axis.x / sqrtf(fabsf(Axis.x) + fabsf(Axis.y));
+		float _NewSpeed = GetHorizontal() / sqrtf(fabsf(GetHorizontal()) + fabsf(GetVertical()));
 		_NewForce.x = _NewSpeed * Speed;
 	}
 
 	if (GetVertical() != 0.f) {
-		float _NewSpeed = Axis.y / sqrtf(fabsf(Axis.x) + fabsf(Axis.y));
+		float _NewSpeed = GetVertical() / sqrtf(fabsf(GetVertical()) + fabsf(GetHorizontal()));
 		_NewForce.y = _NewSpeed * Speed;
 	}
 
@@ -455,15 +440,6 @@ void Player::Update(float _DeltaTime) {
 	static DWORD dwTime = GetTickCount64();
 	if (dwTime < GetTickCount64()) {
 		dwTime = GetTickCount64() + 20;
-
-		for (int i = 0; i < _countof(Stuffs); i++) {
-			Stuffs[i] -= 1;
-
-			if (Stuffs[i] < 0) {
-				Stuffs[i] = 99;
-			}
-			GetLevel()->GetUIManager()->SetStuff(i, Stuffs[i]);
-		}
 		//Font->SetText(to_string(asd.x) + ", " + to_string(asd.y));
 	}
 
@@ -478,6 +454,23 @@ void Player::Update(float _DeltaTime) {
 		HeadDirection = 4;
 	} else if (GameEngineInput::GetInst()->IsPress("AttackRight")) {
 		HeadDirection = 6;
+	}
+
+	if (GameEngineInput::GetInst()->IsPress("PlayerLeft")) {
+		if (Axis.x > 0.f) Axis.x *= 0.5f;
+		Axis.x -= (Accel)*_DeltaTime;
+	}
+	if (GameEngineInput::GetInst()->IsPress("PlayerRight")) {
+		if (Axis.x < 0.f) Axis.x *= 0.5f;
+		Axis.x += (Accel)*_DeltaTime;
+	}
+	if (GameEngineInput::GetInst()->IsPress("PlayerUp")) {
+		if (Axis.y < 0.f) Axis.y *= 0.5f;
+		Axis.y += (Accel)*_DeltaTime;
+	}
+	if (GameEngineInput::GetInst()->IsPress("PlayerDown")) {
+		if (Axis.y > 0.f) Axis.y *= 0.5f;
+		Axis.y -= (Accel)*_DeltaTime;
 	}
 
 	StateManager.Update(_DeltaTime);

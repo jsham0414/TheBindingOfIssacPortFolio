@@ -87,7 +87,7 @@ public:
 
 	void Update(float _DeltaTime);
 
-	std::string GetCurStateStateName()
+	std::string GetCurStateName()
 	{
 		if (nullptr == CurState)
 		{

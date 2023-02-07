@@ -82,7 +82,7 @@ public:
 	{
 		if (true == CutData.empty())
 		{
-			return float4::ZERO;
+			return { 0.f, 0.f, 0.f, 1.f };
 			//MsgBoxAssertString(GetNameCopy() + " 자르지 않은 텍스처를 사용하려고 했습니다.");
 		}
 

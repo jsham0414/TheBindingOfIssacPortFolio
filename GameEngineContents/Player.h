@@ -43,9 +43,9 @@ public:
 		return MaxHp;
 	}
 
-	void LoseHp(int _Value = 1) {
-		Hp -= _Value;
-	}
+	void LoseHp(int _Value = 1);
+
+	void Assault(int _Value = 1);
 
 	int GetStuff(int _Type) {
 		return Stuffs[_Type];
@@ -79,7 +79,10 @@ protected:
 	void IdleStart(const StateInfo& _Info);
 	void IdleUpdate(float _DeltaTime, const StateInfo& _Info);
 
+	void Blinking(DWORD _Duration);
+
 	void HitStart(const StateInfo& _Info);
+	void HitEnd(const StateInfo& _Info);
 	void HitUpdate(float _DeltaTime, const StateInfo& _Info);
 
 	void HeadAttackStart(const StateInfo& _Info);
@@ -94,6 +97,7 @@ protected:
 	void MoveUpdate(float _DeltaTime, const StateInfo& _Info);
 
 private:
+	bool Invincible;
 	float Speed;
 	GameEngineStateManager StateManager, AttackManager;
 	int HeadDirection;

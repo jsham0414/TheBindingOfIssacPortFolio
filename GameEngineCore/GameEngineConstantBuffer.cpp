@@ -59,6 +59,7 @@ void GameEngineConstantBuffer::ChangeData(const void* _Data, size_t _Size) const
 
 	// 어떤 그래픽 리소스를 이제부터 아무도 건들지 못하게 해.
 	// 그래픽카드를 느리게 만듭니다.
+	Mutex.lock();
 	GameEngineDevice::GetContext()->Map(Buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &SettingResources);
 
 	if (nullptr == SettingResources.pData)
@@ -71,6 +72,7 @@ void GameEngineConstantBuffer::ChangeData(const void* _Data, size_t _Size) const
 	
 	// 무조건 다시 닫아줘야 합니다.
 	GameEngineDevice::GetContext()->Unmap(Buffer, 0);
+	Mutex.unlock();
 }
 
 void GameEngineConstantBuffer::VSSetting(int _BindPoint)

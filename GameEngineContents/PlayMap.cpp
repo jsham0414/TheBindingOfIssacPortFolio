@@ -45,6 +45,8 @@ void PlayMap::TurnOffActors() {
 void PlayMap::UpdateCollision(function<bool(GameEngineCollision*, GameEngineCollision*)> _Function) {
 	for (int i = 0; i < Walls.size(); i++) {
 		Wall* _Wall = Walls[i];
+		if (_Wall->GetOrder() != static_cast<int>(OBJECTORDER::Wall))
+			continue;
 
 		_Wall->GetCollision()->IsCollisionRigidBody(CollisionType::CT_OBB2D, OBJECTORDER::Player, CollisionType::CT_OBB2D);
 		_Wall->GetCollision()->IsCollisionRigidBody(CollisionType::CT_OBB2D, OBJECTORDER::Monster, CollisionType::CT_OBB2D);
@@ -108,24 +110,26 @@ void PlayMap::Start() {
 
 void PlayMap::Initialize() {
 	RECT rc[16] = {
-		{0, 390, 960, 300},
-		{550, 0, 300, 520},
-		{-550, 0, 300, 520},
-		{0, -390, 960, 300},
-		{-500, 330, 960, 300},
-		{500, 330, 960, 300},
-		{-500, -330, 960, 300},
-		{500, -330, 960, 300},
-		{490, 280, 300, 520},
-		{490, -280, 300, 520},
-		{-490, 280, 300, 520},
-		{-490, -280, 300, 520},
+		{0, 265, 960, 50},
+		{425, 0, 50, 520},
+		{-425, 0, 50, 520},
+		{0, -265, 960, 50},
+
+		{-265, 206, 480, 50},
+		{265, 206, 480, 50},
+		{-265, -205, 480, 50},
+		{265, -205, 480, 50},
+
+		{365, 166, 50, 280},
+		{365, -166, 50, 280},
+		{-365, 166, 50, 280},
+		{-365, -166, 50, 280},
 
 		// ÃÑ¾Ë¿ë º®
-		{0, 380, 960, 300},
-		{500, 0, 300, 520},
-		{-500, 0, 300, 520},
-		{0, -340, 960, 300},
+		{0, 260, 960, 50},
+		{380, 0, 50, 520},
+		{-380, 0, 50, 520},
+		{0, -220, 960, 50},
 	};
 
 	for (int i = 0; i < _countof(rc); i++) {

@@ -62,7 +62,7 @@ void Bullet::Start() {
 }
 
 void Bullet::Update(float _DeltaTime) {
-	if (StateManager.GetCurStateStateName() != "")
+	if (StateManager.GetCurStateName() != "")
 		StateManager.Update(_DeltaTime);
 }
 
@@ -72,11 +72,11 @@ bool Bullet::MonsterCollision(GameEngineCollision* _This, GameEngineCollision* _
 	}
 	//TODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODO
 	if (_Other->GetOrder() == (int)OBJECTORDER::Monster) {
-		auto Infos = _Other->GetActor()->GetConvertChilds<GameEngineActorInfo>();
-		
+		auto Infos = static_cast<Monster*>(_Other->GetActor());
+		Infos->Damage();
 	} else if (_Other->GetOrder() == (int)OBJECTORDER::Player) {
-		Player* _Player = reinterpret_cast<Player*>(_Other->GetActor());
-
+		Player* _Player = static_cast<Player*>(_Other->GetActor());
+		_Player->Assault();
 	}
 
 	//_Other->GetActor()->Death();

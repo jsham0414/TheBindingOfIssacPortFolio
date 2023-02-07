@@ -65,6 +65,11 @@ void Horf::CreateFrameAnimation() {
 	Renderer->CreateFrameAnimationCutTexture("Attack", FrameAnimation_DESC("Horf.png", 0, 2, 0.25f));
 }
 
+void Horf::Damage() {
+	ColorChange = thread(&Horf::DamageAnimation, this);
+	ColorChange.detach();
+}
+
 void Horf::IdleStateStart(const StateInfo& _Info) {
 	Power = 2.5f;
 	Renderer->ChangeFrameAnimation("Idle");

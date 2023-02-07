@@ -13,6 +13,7 @@ struct Input
 {
     float4 Pos : POSITION;
     float4 Tex : TEXCOORD;
+    float4 Color : COLOR;
 };
 
 struct Output

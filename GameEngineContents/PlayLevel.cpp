@@ -103,6 +103,12 @@ void PlayLevel::LoadTexture() {
 				GameEngineTexture::Cut(Shaders[i].GetFileName(), 4, 4);
 			if (Shaders[i].GetFileName() == "tears.png")
 				GameEngineTexture::Cut(Shaders[i].GetFileName(), 8, 4);
+			if (Shaders[i].GetFileName() == "Issac_hit.png")
+				GameEngineTexture::Cut(Shaders[i].GetFileName(), 2, 2);
+			if (Shaders[i].GetFileName() == "pickup_016_bomb.png")
+				GameEngineTexture::Cut(Shaders[i].GetFileName(), 5, 6);
+			if (Shaders[i].GetFileName() == "effect_029_explosion.png")
+				GameEngineTexture::Cut(Shaders[i].GetFileName(), 4, 4);
 		}
 	}
 }

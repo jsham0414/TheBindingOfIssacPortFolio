@@ -78,7 +78,7 @@ void MapManager::Update(float _DeltaTime) {
 
 	if (GetCurMapEnemyCount() <= 0) {
 		auto& CurrentState = CurMap->GetState();
-		if (CurrentState.GetCurStateStateName() == "Battle") {
+		if (CurrentState.GetCurStateName() == "Battle") {
 			CurrentState.ChangeState("Idle");
 		}
 	}
@@ -100,7 +100,7 @@ bool MapManager::PlayerCollision(GameEngineCollision* _This, GameEngineCollision
 		auto _Door = iter->second;
 		if (_Door->GetCollision() != _This)
 			continue;
-		if (_Door->GetState().GetCurStateStateName() == "Battle")
+		if (_Door->GetState().GetCurStateName() == "Battle")
 			continue;
 		
 		Index = iter->first;
@@ -307,11 +307,11 @@ void MapManager::MoveRoom(int _Direction) {
 	PlayMap* NewMap = PlayMaps.at(NextRoomIndex);
 	NewMap->MapOn(OpenCheck);
 
-	float4 DestPosition = NewMap->GetTransform().GetWorldPosition() + float4::BACK * 100.f;
+	float4 DestPosition = NewMap->GetTransform().GetWorldPosition() + float4::BACK * 1000.f;
 	if (_Direction == 0) {
 		GetLevel()->GetMainCameraActorTransform().SetWorldPosition(DestPosition);
 	} else {
-		Player::GetMainPlayer()->GetCollision()->Off();
+		//Player::GetMainPlayer()->GetCollision()->Off();
 		GetLevel()->GetMainCameraActor()->MapChange(DestPosition);
 	}
 

@@ -9,17 +9,21 @@ public:
 	Monster();
 	~Monster();
 
+	void DamageAnimation();
+
 	// delete Function
 	Monster(const Monster& _Other) = delete;
 	Monster(Monster&& _Other) noexcept = delete;
 	Monster& operator=(const Monster& _Other) = delete;
 	Monster& operator=(Monster&& _Other) noexcept = delete;
 
+	virtual void Damage() {}
 protected:
-	void Start() override;
-	void Update(float _DeltaTime) {}
-	void End() {}
+	virtual void Start() {}
+	virtual void Update(float _DeltaTime) {}
+	virtual void End() {}
 
+	std::thread ColorChange;
 private:
 
 };

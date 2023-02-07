@@ -147,7 +147,7 @@ void GameEngineCameraActor::MapChangeLerp(float4 _DestPos) {
 
 	GetLevel()->GetMapManager()->TurnOffLastRoom();
 
-	Player::GetMainPlayer()->GetCollision()->On();
+	//Player::GetMainPlayer()->GetCollision()->On();
 }
 
 void GameEngineCameraActor::End() 

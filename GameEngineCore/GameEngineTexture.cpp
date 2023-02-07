@@ -103,6 +103,15 @@ GameEngineTexture* GameEngineTexture::Load(const std::string& _Path, const std::
 {
 	GameEngineTexture* NewRes = CreateResName(_Name);
 	NewRes->TextureLoad(_Path);
+
+	float4 FrameData;
+
+	FrameData.PosX = 0.f;
+	FrameData.PosY = 0.f;
+	FrameData.SizeX = 1.f;
+	FrameData.SizeY = 1.f;
+	NewRes->CutData.push_back(FrameData);
+
 	return NewRes;
 }
 
@@ -207,6 +216,8 @@ void GameEngineTexture::Cut(UINT _StartX, UINT _StartY, UINT _SizeX, UINT _SizeY
 
 void GameEngineTexture::Cut(UINT _X, UINT _Y)
 {
+	CutData.clear();
+
 	float SizeX = 1.0f / _X;
 	float SizeY = 1.0f / _Y;
 

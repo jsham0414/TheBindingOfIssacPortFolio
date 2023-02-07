@@ -12,6 +12,7 @@ void FrameAnimation::Reset()
 {
 	Info.FrameTime = 0.0f;
 	Info.CurFrame = 0;
+	bOnceEnd = false;
 }
 
 void FrameAnimation::Update(float _Delta) 
@@ -264,8 +265,6 @@ void GameEngineTextureRenderer::SetTexture(GameEngineTexture* _Texture, UINT _In
 	}
 
 	SetTexture(_Texture);
-	if (CurTex->GetCutCount() == 0)
-		return;
 	SetFrame(_Index);
 }
 
@@ -348,7 +347,10 @@ void GameEngineTextureRenderer::ChangeFrameAnimation(const std::string& _Animati
 			SetTexture(CurAni->Texture, CurAni->Info.Frames[CurAni->Info.CurFrame]);
 			if (ScaleMode == SCALEMODE::IMAGE)
 			{
-				ScaleToCutTexture(CurAni->Info.CurFrame);
+				if (CurTex->GetCutCount() == 0)
+					ScaleToTexture();
+				else
+					ScaleToCutTexture(CurAni->Info.CurFrame);
 			}
 		}
 		else if(nullptr != CurAni->FolderTexture)

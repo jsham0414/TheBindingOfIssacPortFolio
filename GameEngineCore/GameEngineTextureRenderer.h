@@ -124,6 +124,7 @@ class FrameAnimation : public GameEngineNameObject
 {
 	friend GameEngineTextureRenderer;
 
+public:
 	FrameAnimation_DESC Info;
 
 	GameEngineTextureRenderer* ParentRenderer;
@@ -315,6 +316,10 @@ public:
 			delete FrameAni;
 
 		FrameAni = _FrameAni;
+	}
+
+	const FrameAnimation* GetCurAni() {
+		return CurAni;
 	}
 
 protected:
