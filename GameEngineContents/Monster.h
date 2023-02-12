@@ -25,6 +25,6 @@ protected:
 
 	std::thread ColorChange;
 private:
-
+	GameEngineStateManager StateManager;
 };
 

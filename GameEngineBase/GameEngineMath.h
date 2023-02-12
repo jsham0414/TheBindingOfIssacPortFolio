@@ -1,5 +1,6 @@
 #pragma once
-#include <math.h>
+#include <cmath>
+#include <algorithm>
 #include <Windows.h>
 #include <d3d11_4.h>
 #include <d3dcompiler.h>
@@ -90,6 +91,16 @@ public:
 		0.0f
 		);
 		return vResult;
+	}
+
+	static float4 ClampMagnitude(const float4& _Left, float _Value) {
+		float4 Result = float4(
+			std::clamp(_Left.x, -_Value, _Value),
+			std::clamp(_Left.y, -_Value, _Value),
+			std::clamp(_Left.z, -_Value, _Value),
+			std::clamp(_Left.w, -_Value, _Value)
+		);
+		return Result;
 	}
 
 	static float4 Select(const float4& _Left, const float4& _Right, const float4& _Control)

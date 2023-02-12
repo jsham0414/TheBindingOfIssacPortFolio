@@ -247,13 +247,20 @@ bool GameEngineCollision::IsCollisionRigidBody(CollisionType _ThisType, int _Gro
 				float _SubMass;
 				if (!this->GetTransform().GetStatic()) {
 					GetActor()->GetTransform().SetPower(float4::ZERO);
-					_SubMass = Collision->GetMass() / (this->Mass + Collision->GetMass());
-					GetActor()->GetTransform().SetWorldMove(-Impurse * _SubMass);
+					//_SubMass = Collision->GetMass() / (this->Mass + Collision->GetMass());
+					_SubMass = (this->Mass / Collision->GetMass());
+					GetActor()->GetTransform().SetWorldMove(-Impurse);
 				}
 				if (!Collision->GetTransform().GetStatic()) {
 					Collision->GetActor()->GetTransform().SetPower(float4::ZERO);
-					_SubMass = this->Mass / (this->Mass + Collision->GetMass());
-					Collision->GetActor()->GetTransform().SetWorldMove(Impurse * _SubMass);
+					_SubMass = (Collision->GetMass() / this->Mass);
+					//_SubMass = this->Mass / (this->Mass + Collision->GetMass());
+					Collision->GetActor()->GetTransform().SetWorldMove(Impurse);
+				}
+
+				if (!this->GetTransform().GetStatic() && !Collision->GetTransform().GetStatic()) {
+					GetActor()->GetTransform().AddForce(-Impurse);
+					Collision->GetActor()->GetTransform().AddForce(Impurse);
 				}
 			}
 

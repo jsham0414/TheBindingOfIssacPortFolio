@@ -18,7 +18,8 @@ Horf::~Horf() {
 void Horf::Start() {
 	Renderer = CreateComponent<GameEngineTextureRenderer>();
 	Renderer->GetTransform().SetWorldScale({ 32 * 1.5f, 32 * 1.5f, 1 });
-	
+	Renderer->SetScaleMode(SCALEMODE::IMAGE);
+
 	CreateFrameAnimation();
 
 	Renderer->ChangeFrameAnimation("Idle");
@@ -33,13 +34,13 @@ void Horf::Start() {
 	);
 	StateManager.ChangeState("Idle");
 
-	Renderer->SetTexture("Horf.png", 0);
+	Renderer->ScaleToCutTexture(0);
 
 	Renderer->SetPivotToVector(float4(0.0f, 0.48f, 0.0f, 0.0f));
 
 	Collision = CreateComponent<GameEngineCollision>();
-	Collision->GetTransform().SetLocalPosition({ 0, -10, 0 });
-	Collision->GetTransform().SetWorldScale({ 30.0f, 30.0f, 50.0f });
+	Collision->GetTransform().SetLocalPosition({ 0, 25, 0 });
+	Collision->GetTransform().SetWorldScale({ 40.0f, 40.0f, 50.0f });
 	Collision->ChangeOrder(OBJECTORDER::Monster);
 	float4 Color = float4::RED;
 	Color.a = 0.2f;
@@ -66,7 +67,7 @@ void Horf::CreateFrameAnimation() {
 }
 
 void Horf::Damage() {
-	ColorChange = thread(&Horf::DamageAnimation, this);
+	ColorChange = thread(&Monster::DamageAnimation, this);
 	ColorChange.detach();
 }
 

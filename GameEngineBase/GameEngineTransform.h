@@ -186,6 +186,15 @@ public:
 		SetWorldPosition(Data.WorldPosition + (GetRightVector() * Speed * DeltaTime));
 	}
 
+	inline void AddForce(const float4& _Value) {
+		Accel += _Value / Mass * 6.f;
+	}
+
+	inline void SetImpulse(const float4& _Value) {
+		Impulse = _Value;
+		
+	}
+
 	inline void SetWorldMove(const float4& _Value)
 	{
 		// 충돌 감지 할 것인지
@@ -310,14 +319,36 @@ public:
 		return Data;
 	}
 
+
+
 	void Copy(const GameEngineTransform& _Trans);
 
 	virtual void Start() { Power = float4::ZERO; }
 	virtual void Update(float _DeltaTime) {
+
+
 		SetWorldPosition(Data.WorldPosition + Power);
+		Impulse = Accel * _DeltaTime;
+		SetWorldPosition(Data.WorldPosition + Impulse);
+		Accel -= Accel * 3.f * _DeltaTime;
 		Power = float4::ZERO;
+		Impulse = float4::ZERO;
 	}
 	virtual void End() {}
+
+	void StopPhysics() {
+		Power = float4::ZERO;
+		Impulse = float4::ZERO;
+		Accel = float4::ZERO;
+	}
+
+	float4 CurrentVelocity;
+
+	float4 Axis;
+	float4 Impulse;
+	float Slope;
+	float4 Accel;
+	float Mass;
 
 protected:
 

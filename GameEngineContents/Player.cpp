@@ -7,16 +7,14 @@
 #include "Bullet.h"
 #include <GameEngineCore/GameEngineTextureRenderer.cpp>
 #include "UIManager.h"
+#include "Bomb.h"
 
 Player* Player::MainPlayer = nullptr;
 
 Player::Player()
 	: Speed(330.0f) {
 	SetName("Player");
-	Axis = { 0.f };
 	Velocity = { 0.f };
-	Slope = 3.8f;
-	Accel = 3.4f;
 	MainPlayer = this;
 	MaxHp = 6;
 	Hp = MaxHp;
@@ -41,6 +39,8 @@ void Player::KeyBinding() {
 		GameEngineInput::GetInst()->CreateKey("AttackDown", VK_DOWN);
 		GameEngineInput::GetInst()->CreateKey("PlayerF", VK_NUMPAD1);
 		GameEngineInput::GetInst()->CreateKey("PlayerB", VK_NUMPAD2);
+		GameEngineInput::GetInst()->CreateKey("PlayerBomb", 'E');
+
 	}
 }
 
@@ -66,7 +66,7 @@ void Player::CreateFrameAnimation() {
 	BodyRenderer->CreateFrameAnimationCutTexture("Issac_Body_Walk_Up", FrameAnimation_DESC("issac_body_vertical.png", 9, 0, 0.1f));
 	BodyRenderer->CreateFrameAnimationCutTexture("Issac_Body_Walk_Left", FrameAnimation_DESC("issac_body_horizontal.png", 0, 7, 0.1f));
 	BodyRenderer->CreateFrameAnimationCutTexture("Issac_Body_Walk_Right", FrameAnimation_DESC("issac_body_horizontal.png", 8, 15, 0.1f));
-	
+
 	BodyRenderer->CreateFrameAnimationCutTexture("Issac_Hit", FrameAnimation_DESC("Issac_hit2.png", 0, 0, 0.3f));
 }
 
@@ -86,10 +86,10 @@ void Player::Assault(int _Value) {
 void Player::Start() {
 	HeadRenderer = CreateComponent<GameEngineTextureRenderer>();
 	HeadRenderer->GetTransform().SetLocalPosition({ 0.0f, 20.f, 10.0f });
+	HeadRenderer->SetScaleMode(SCALEMODE::IMAGE);
 
 	BodyRenderer = CreateComponent<GameEngineTextureRenderer>();
 	BodyRenderer->GetTransform().SetLocalPosition({ 0.0f, 0.0f, 11.0f });
-	HeadRenderer->SetScaleMode(SCALEMODE::IMAGE);
 
 	KeyBinding();
 	CreateFrameAnimation();
@@ -154,10 +154,9 @@ void Player::Start() {
 		, nullptr);
 	StateManager.ChangeState("Idle");
 
-
-	// GetTransform().SetWorldPosition({ 100.0f, 0.0f, 100.0f });
-	// GetTransform().SetWorldPosition({ 300.0f, 200.0f, 100.0f });
-	// GetTransform().SetWorldPosition({ 0.0f, 0.0f, 100.0f });
+	GetTransform().Axis = { 0.f };
+	GetTransform().Slope = 3.8f;
+	Accel = 3.4f;
 }
 
 void Player::IdleStart(const StateInfo& _Info) {
@@ -165,11 +164,11 @@ void Player::IdleStart(const StateInfo& _Info) {
 }
 
 float Player::GetVertical() {
-	return trunc(Axis.y * 100.f) / 100.f;
+	return trunc(GetTransform().Axis.y * 100.f) / 100.f;
 }
 
 float Player::GetHorizontal() {
-	return trunc(Axis.x * 100.f) / 100.f;
+	return trunc(GetTransform().Axis.x * 100.f) / 100.f;
 }
 
 void Player::IdleUpdate(float _DeltaTime, const StateInfo& _Info) {
@@ -284,28 +283,28 @@ void Player::HeadAttackUpdate(float _DeltaTime, const StateInfo& _Info) {
 
 		float NewAngle = 0;
 		float _PlusAngle = 10.f; // 1당 휘어질 각도
-		
-		float4 _TempAxis = Axis;
+
+		float4 _TempAxis = GetTransform().Axis;
 		switch (HeadDirection) {
 		case 2:
 			NewAngle = 270;
-			NewAngle += _PlusAngle * Axis.x;
-			if (Axis.y < 0) NewBullet->AddSpeed(Speed * 0.8f * fabsf(_TempAxis.y));
+			NewAngle += _PlusAngle * GetTransform().Axis.x;
+			if (GetTransform().Axis.y < 0) NewBullet->AddSpeed(Speed * 0.8f * fabsf(_TempAxis.y));
 			break;
 		case 4:
 			NewAngle = 180;
-			NewAngle += _PlusAngle * -Axis.y;
-			if (Axis.x < 0) NewBullet->AddSpeed(Speed * 0.8f * fabsf(Axis.x));
+			NewAngle += _PlusAngle * -GetTransform().Axis.y;
+			if (GetTransform().Axis.x < 0) NewBullet->AddSpeed(Speed * 0.8f * fabsf(_TempAxis.x));
 			break;
 		case 6:
 			NewAngle = 0;
-			NewAngle += _PlusAngle * Axis.y;
-			if (Axis.x > 0) NewBullet->AddSpeed(Speed * 0.8f * fabsf(Axis.x));
+			NewAngle += _PlusAngle * GetTransform().Axis.y;
+			if (GetTransform().Axis.x > 0) NewBullet->AddSpeed(Speed * 0.8f * fabsf(_TempAxis.x));
 			break;
 		case 8:
 			NewAngle = 90;
-			NewAngle += _PlusAngle * -Axis.x;
-			 if (Axis.y > 0)NewBullet->AddSpeed(Speed * 0.8f * fabsf(Axis.y));
+			NewAngle += _PlusAngle * -GetTransform().Axis.x;
+			if (GetTransform().Axis.y > 0)NewBullet->AddSpeed(Speed * 0.8f * fabsf(_TempAxis.y));
 			break;
 		}
 
@@ -398,7 +397,7 @@ bool Player::MonsterCollision(GameEngineCollision* _This, GameEngineCollision* _
 
 
 void Player::Attack(int _Direction) {
-	
+
 }
 
 void Player::PlayerSetPosition(float4 _NewPos) {
@@ -409,14 +408,14 @@ void Player::Update(float _DeltaTime) {
 	static float4 CurrentVelocity = { 0.f };
 
 	if (!(GameEngineInput::GetInst()->IsPress("PlayerLeft") || GameEngineInput::GetInst()->IsPress("PlayerRight")))
-		Axis.x -= (Axis.x / fabs(Axis.x)) * (Slope) * _DeltaTime;
+		GetTransform().Axis.x -= (GetTransform().Axis.x / fabs(GetTransform().Axis.x)) * (GetTransform().Slope) * _DeltaTime;
 	if (!(GameEngineInput::GetInst()->IsPress("PlayerUp") || GameEngineInput::GetInst()->IsPress("PlayerDown")))
-		Axis.y -= (Axis.y / fabs(Axis.y)) * (Slope) * _DeltaTime;
+		GetTransform().Axis.y -= (GetTransform().Axis.y / fabs(GetTransform().Axis.y)) * (GetTransform().Slope) * _DeltaTime;
 
-	Axis.x = fminf(Axis.x, 1.f);
-	Axis.y = fminf(Axis.y, 1.f);
-	Axis.x = fmaxf(Axis.x, -1.f);
-	Axis.y = fmaxf(Axis.y, -1.f);
+	GetTransform().Axis.x = fminf(GetTransform().Axis.x, 1.f);
+	GetTransform().Axis.y = fminf(GetTransform().Axis.y, 1.f);
+	GetTransform().Axis.x = fmaxf(GetTransform().Axis.x, -1.f);
+	GetTransform().Axis.y = fmaxf(GetTransform().Axis.y, -1.f);
 
 
 	float4 _NewForce = { 0.f };
@@ -446,6 +445,11 @@ void Player::Update(float _DeltaTime) {
 	if (true == GetLevel()->GetMainCameraActor()->IsFreeCameraMode())
 		return;
 
+	float4 qasd = GetTransform().GetWorldPosition();
+	qasd.y -= 10.f;
+	if (GameEngineInput::GetInst()->IsDown("PlayerBomb"))
+		GetLevel()->CreateActor<Bomb>()->GetTransform().SetWorldPosition(qasd);
+
 	if (GameEngineInput::GetInst()->IsPress("AttackUp")) {
 		HeadDirection = 8;
 	} else if (GameEngineInput::GetInst()->IsPress("AttackDown")) {
@@ -457,20 +461,20 @@ void Player::Update(float _DeltaTime) {
 	}
 
 	if (GameEngineInput::GetInst()->IsPress("PlayerLeft")) {
-		if (Axis.x > 0.f) Axis.x *= 0.5f;
-		Axis.x -= (Accel)*_DeltaTime;
+		if (GetTransform().Axis.x > 0.f) GetTransform().Axis.x *= 0.5f;
+		GetTransform().Axis.x -= (Accel) * _DeltaTime;
 	}
 	if (GameEngineInput::GetInst()->IsPress("PlayerRight")) {
-		if (Axis.x < 0.f) Axis.x *= 0.5f;
-		Axis.x += (Accel)*_DeltaTime;
+		if (GetTransform().Axis.x < 0.f) GetTransform().Axis.x *= 0.5f;
+		GetTransform().Axis.x += (Accel) * _DeltaTime;
 	}
 	if (GameEngineInput::GetInst()->IsPress("PlayerUp")) {
-		if (Axis.y < 0.f) Axis.y *= 0.5f;
-		Axis.y += (Accel)*_DeltaTime;
+		if (GetTransform().Axis.y < 0.f) GetTransform().Axis.y *= 0.5f;
+		GetTransform().Axis.y += (Accel) * _DeltaTime;
 	}
 	if (GameEngineInput::GetInst()->IsPress("PlayerDown")) {
-		if (Axis.y > 0.f) Axis.y *= 0.5f;
-		Axis.y -= (Accel)*_DeltaTime;
+		if (GetTransform().Axis.y > 0.f) GetTransform().Axis.y *= 0.5f;
+		GetTransform().Axis.y -= (Accel) * _DeltaTime;
 	}
 
 	StateManager.Update(_DeltaTime);

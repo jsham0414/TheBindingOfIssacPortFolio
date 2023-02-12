@@ -21,14 +21,14 @@ public:
 	Player();
 	~Player();
 
-	void KeyBinding();
-
 	// delete Function
 	Player(const Player& _Other) = delete;
 	Player(Player&& _Other) noexcept = delete;
 	Player& operator=(const Player& _Other) = delete;
 	Player& operator=(Player&& _Other) noexcept = delete;
 
+
+	void KeyBinding();
 	bool MonsterCollision(GameEngineCollision* _This, GameEngineCollision* _Other);
 
 	void Attack(int _Direction);
@@ -54,6 +54,8 @@ public:
 protected:
 	void Start() override;
 	void CreateFrameAnimation();
+	void StartAcceleration(int _Horizontal, int _Vertical);
+	void StopAcceleration();
 	void Update(float _DeltaTime);
 	void End()  {}
 
@@ -61,9 +63,6 @@ protected:
 	GameEngineTextureRenderer* HPRenderer;
 
 	float4 Velocity;
-	float4 Axis;
-	float Slope;
-	float Accel;
 
 	int Hp, MaxHp;
 
@@ -95,8 +94,16 @@ protected:
 
 	// void MoveStart(const StateInfo& _Info);
 	void MoveUpdate(float _DeltaTime, const StateInfo& _Info);
-
+	float GetAxis(float _Value);
 private:
+
+	float4 MoveDistance;
+	bool IsAccel;
+	float ElapsedTime;
+	int HorizontalDir;
+	int VerticalDir;
+	float Accel, Decel;
+
 	bool Invincible;
 	float Speed;
 	GameEngineStateManager StateManager, AttackManager;

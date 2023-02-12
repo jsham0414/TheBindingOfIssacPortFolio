@@ -217,6 +217,7 @@ void GameEngineTextureRenderer::SetPivot(PIVOTMODE _Mode)
 
 void GameEngineTextureRenderer::SetPivotToVector(const float4& _Value) 
 {
+	PivotMode = PIVOTMODE::CUSTOM;
 	AtlasDataInst.PivotPos = _Value;
 	//GetTransform().SetLocalPosition(_Value);
 }

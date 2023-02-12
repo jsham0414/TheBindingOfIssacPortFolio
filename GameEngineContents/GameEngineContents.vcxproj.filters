@@ -123,6 +123,9 @@
     <ClInclude Include="UINumber.h">
       <Filter>Actor\02.Play</Filter>
     </ClInclude>
+    <ClInclude Include="Bomb.h">
+      <Filter>Actor\02.Play</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ContentsCore.cpp">
@@ -201,6 +204,9 @@
       <Filter>Actor\02.Play</Filter>
     </ClCompile>
     <ClCompile Include="UINumber.cpp">
+      <Filter>Actor\02.Play</Filter>
+    </ClCompile>
+    <ClCompile Include="Bomb.cpp">
       <Filter>Actor\02.Play</Filter>
     </ClCompile>
   </ItemGroup>
