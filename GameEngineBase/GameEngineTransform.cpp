@@ -6,6 +6,7 @@ GameEngineTransform::GameEngineTransform()
 	, CollisionDataObject()
 {
 	Mass = 1.f;
+	Axis = { 0.f, 0.f };
 	CollisionDataSetting();
 }
 

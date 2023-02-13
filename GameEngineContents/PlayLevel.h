@@ -16,13 +16,13 @@ public:
 	PlayLevel& operator=(const PlayLevel& _Other) = delete;
 	PlayLevel& operator=(PlayLevel&& _Other) noexcept = delete;
 
+	bool PreLoading() override;
 protected:
 	void Start() override;
 	void Update(float _DeltaTime) override;
 	void End() override;
 	void LevelStartEvent() override;
-
-	void LoadTexture();
+	bool LoadTexture();
 
 private:
 

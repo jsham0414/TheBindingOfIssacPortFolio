@@ -40,6 +40,9 @@
     <Filter Include="Core">
       <UniqueIdentifier>{eee3c248-3814-48af-b1f4-f221fa7a0ee6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Actor\05.Loading">
+      <UniqueIdentifier>{6141a65e-291b-4739-98ca-582c8e109d59}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ContentsCore.h">
@@ -126,6 +129,15 @@
     <ClInclude Include="Bomb.h">
       <Filter>Actor\02.Play</Filter>
     </ClInclude>
+    <ClInclude Include="GameMenu.h">
+      <Filter>Actor\01.Login</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadingLevel.h">
+      <Filter>Level</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadingUI.h">
+      <Filter>Actor\05.Loading</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ContentsCore.cpp">
@@ -208,6 +220,15 @@
     </ClCompile>
     <ClCompile Include="Bomb.cpp">
       <Filter>Actor\02.Play</Filter>
+    </ClCompile>
+    <ClCompile Include="GameMenu.cpp">
+      <Filter>Actor\01.Login</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadingLevel.cpp">
+      <Filter>Level</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadingUI.cpp">
+      <Filter>Actor\05.Loading</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

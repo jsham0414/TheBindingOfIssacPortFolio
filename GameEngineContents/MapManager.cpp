@@ -88,6 +88,9 @@ void MapManager::Update(float _DeltaTime) {
 }
 
 bool MapManager::PlayerCollision(GameEngineCollision* _This, GameEngineCollision* _Other) {
+	if (GetLevel()->GetMainCameraActor()->IsMoving())
+		return false;
+
 	int Index = -1;
 
 	LastRoomIndex = CurRoomIndex;

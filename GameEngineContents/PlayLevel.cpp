@@ -12,60 +12,37 @@
 #include "MapManager.h"
 #include "UIManager.h"
 
-PlayLevel::PlayLevel() 
-{
+PlayLevel::PlayLevel() {
 }
 
-PlayLevel::~PlayLevel() 
-{
+PlayLevel::~PlayLevel() {
 }
 
 void PlayLevel::Start() {
-	// 내가 직접 설정해줘야 합니다.
 	GetMainCamera()->SetProjectionMode(CAMERAPROJECTIONMODE::Orthographic);
-
-	// 컵헤드 올드필름 이미지 텍스처 폴더 이미지로 로드해서
-	// 화면에 랜더링하세요.
-	// 블랜드를 바꿔야 할겁니다.
-
-	// GetMainCamera()->GetCameraRenderTarget()->AddEffect<GameEngineBlur>();
-
-	// GameEngineDevice::GetBackBuffer()->AddEffect<GameEngineBlur>();
-
-	// GetMainCamera()->GetCameraRenderTarget()->AddEffect<GameEngineBlur>();
-
-	LoadTexture();
-
-	if (false == GameEngineInput::GetInst()->IsKey("FreeCameaOnOff"))
-	{
-		GameEngineInput::GetInst()->CreateKey("FreeCameaOnOff", 'O');
-	}
-
-
-	{
-	}
-
-	{
-		//Monster* actor = CreateActor<Monster>(OBJECTORDER::Monster);
-		//actor->GetTransform().SetLocalPosition({ 300.0f, 0.0f, 100.0f });
-		//actor->GetTransform().SetWorldScale(float4(1.0f, 1.f, 1.0f));
-	}
-
+	// 로딩 구현 할 정도의 크기가 아니라 시작할 때 몽땅 해놓고 로딩이 되는 것 처럼 보이게 함
+	PreLoading();
 }
 
-void PlayLevel::LevelStartEvent()
-{
+void PlayLevel::LevelStartEvent() {
 	if (nullptr == Player::GetMainPlayer()) {
 		Player* NewPlayer = CreateActor<Player>(OBJECTORDER::Player);
-		//NewPlayer->SetLevelOverOn();
-		//Horf* Temp = CreateActor<Horf>(OBJECTORDER::Monster);
 		MapManagerInstance = CreateActor<MapManager>(OBJECTORDER::Manager);
 		MapManagerInstance->RandomMapGenerate(this);
 		UIManagerInstance = CreateActor<UIManager>(OBJECTORDER::Manager);
 	}
 }
 
-void PlayLevel::LoadTexture() {
+bool PlayLevel::PreLoading() {
+	if (FAILED(LoadTexture()))
+		return false;
+
+	LevelStartEvent();
+
+	return true;
+}
+
+bool PlayLevel::LoadTexture() {
 	GameEngineDirectory Dir;
 	Dir.MoveParentToExitsChildDirectory("ContentsResources");
 	Dir.Move("ContentsResources");
@@ -77,7 +54,6 @@ void PlayLevel::LoadTexture() {
 
 		for (size_t i = 0; i < Shaders.size(); i++) {
 			GameEngineTexture::Load(Shaders[i].GetFullPath());
-
 
 			//#define ASASD(path) if (nullptr == GameEngineTexture::Find(path) && GameEngineString::ToLowerReturn(GameEnginePath::GetFileName(Shaders[i].GetFullPath()) + GameEnginePath::GetExtension(Shaders[i].GetFullPath()))
 
@@ -111,26 +87,15 @@ void PlayLevel::LoadTexture() {
 				GameEngineTexture::Cut(Shaders[i].GetFileName(), 4, 4);
 		}
 	}
+
+	return true;
 }
 
 
-void PlayLevel::Update(float _DeltaTime) 
-{
+void PlayLevel::Update(float _DeltaTime) {
 	//GameEngineStatusWindow::AddDebugRenderTarget("BackBuffer", GameEngineDevice::GetBackBuffer());
 	//GameEngineStatusWindow::AddDebugRenderTarget("MainCamera", GetMainCamera()->GetCameraRenderTarget());
 	//GameEngineStatusWindow::AddDebugRenderTarget("UICamera", GetUICamera()->GetCameraRenderTarget());
-
-
-	if (GameEngineInput::GetInst()->IsDown("FreeCameaOnOff"))
-	{
-		// ;
-		GetMainCameraActor()->FreeCameraModeOnOff();
-	}
-
-	if (true == GameEngineInput::GetInst()->IsDown("LevelChange"))
-	{
-		GEngine::ChangeLevel("Login");
-	}
 
 }
 void PlayLevel::End() {}

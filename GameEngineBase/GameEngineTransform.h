@@ -330,7 +330,20 @@ public:
 		SetWorldPosition(Data.WorldPosition + Power);
 		Impulse = Accel * _DeltaTime;
 		SetWorldPosition(Data.WorldPosition + Impulse);
-		Accel -= Accel * 3.f * _DeltaTime;
+		float4 _Decel = Accel * 2.f * _DeltaTime;
+
+		if ((Accel.x > 0.f && Accel.x - _Decel.x > 0.f) || (Accel.x < 0.f && Accel.x - _Decel.x < 0.f)) {
+			Accel.x -= _Decel.x;
+		} else if ((Accel.x > 0.f && Accel.x - _Decel.x <= 0.f) || (Accel.x < 0.f && Accel.x - _Decel.x >= 0.f)) {
+			Accel.x = 0.f;
+		}
+
+		if ((Accel.y > 0.f && Accel.y - _Decel.y > 0.f) || (Accel.y < 0.f && Accel.y - _Decel.y < 0.f)) {
+			Accel.y -= _Decel.y;
+		} else if ((Accel.y > 0.f && Accel.y - _Decel.y <= 0.f) || (Accel.y < 0.f && Accel.y - _Decel.y >= 0.f)) {
+			Accel.y = 0.f;
+		}
+
 		Power = float4::ZERO;
 		Impulse = float4::ZERO;
 	}

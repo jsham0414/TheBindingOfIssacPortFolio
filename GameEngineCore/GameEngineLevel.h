@@ -154,6 +154,7 @@ public:
 		return Result;
 	}
 
+	virtual bool PreLoading() { return true; }
 
 	UIManager* GetUIManager() {
 		return UIManagerInstance;

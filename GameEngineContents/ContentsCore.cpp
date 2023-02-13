@@ -91,7 +91,7 @@ void ContentsCore::Start()
 	CreateLevel<MapEditorLevel>("MapEditor");
 	CreateLevel<MetaLevel>("MetaEditor");
 	
-	ChangeLevel("Play");
+	ChangeLevel("Login");
 
 	// ChangeLevel("Login");
 

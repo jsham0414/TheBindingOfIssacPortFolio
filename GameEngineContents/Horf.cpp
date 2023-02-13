@@ -15,9 +15,10 @@ Horf::Horf() :
 Horf::~Horf() {
 }
 
+static float4 HorfScale = { 0 };
+
 void Horf::Start() {
 	Renderer = CreateComponent<GameEngineTextureRenderer>();
-	Renderer->GetTransform().SetWorldScale({ 32 * 1.5f, 32 * 1.5f, 1 });
 	Renderer->SetScaleMode(SCALEMODE::IMAGE);
 
 	CreateFrameAnimation();
@@ -48,6 +49,8 @@ void Horf::Start() {
 
 	GameEngineActorInfo* ActorInfo = CreateComponent<GameEngineActorInfo>();
 	ActorInfo->GetInfo().SetMaxHp(10.f);
+
+	HorfScale = Renderer->GetTransform().GetWorldScale();
 }
 
 void Horf::Update(float _DeltaTime) {
@@ -108,10 +111,10 @@ void Horf::AttackStateUpdate(float _DeltaTime, const StateInfo& _Info) {
 	}
 
 	Size += 5.f * _DeltaTime;
-	float y = powf(0.6f * cosf(GameEngineMath::PI * Size / 2.f), 3.f);
+	float y = powf(10.f * cosf(GameEngineMath::PI * Size * 2.f), 3.f);
 	y = max(y, 0);
 
-	Renderer->GetTransform().SetWorldScale({ 32 * 1.5f - (y * 50.f), 32 * 1.5f + y * 100.f, 1 });
+	Renderer->GetTransform().SetWorldScale({ HorfScale.x * 1.5f - (y * 50.f), HorfScale.y * 1.5f + y * 100.f, 1 });
 
 	if (Renderer->CurAnimationFrameIndex() > 1 && !ShootOnce) {
 		ShootOnce = true;

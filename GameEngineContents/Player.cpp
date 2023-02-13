@@ -147,8 +147,6 @@ void Player::Start() {
 		std::bind(&Player::HitEnd, this, std::placeholders::_1)
 	);
 
-	int MyValue = 10;
-
 	StateManager.CreateStateMember("Move"
 		, std::bind(&Player::MoveUpdate, this, std::placeholders::_1, std::placeholders::_2)
 		, nullptr);
@@ -407,11 +405,24 @@ void Player::PlayerSetPosition(float4 _NewPos) {
 void Player::Update(float _DeltaTime) {
 	static float4 CurrentVelocity = { 0.f };
 
-	if (!(GameEngineInput::GetInst()->IsPress("PlayerLeft") || GameEngineInput::GetInst()->IsPress("PlayerRight")))
-		GetTransform().Axis.x -= (GetTransform().Axis.x / fabs(GetTransform().Axis.x)) * (GetTransform().Slope) * _DeltaTime;
-	if (!(GameEngineInput::GetInst()->IsPress("PlayerUp") || GameEngineInput::GetInst()->IsPress("PlayerDown")))
-		GetTransform().Axis.y -= (GetTransform().Axis.y / fabs(GetTransform().Axis.y)) * (GetTransform().Slope) * _DeltaTime;
 
+	if (!(GameEngineInput::GetInst()->IsPress("PlayerLeft") || GameEngineInput::GetInst()->IsPress("PlayerRight")) && (GetTransform().Axis.x != 0.f)) {
+		Decel = (GetTransform().Axis.x / fabs(GetTransform().Axis.x)) * (GetTransform().Slope) * _DeltaTime;
+		if ((GetTransform().Axis.x > 0.f && GetTransform().Axis.x - Decel > 0.f) || (GetTransform().Axis.x < 0.f && GetTransform().Axis.x - Decel < 0.f)) {
+			GetTransform().Axis.x -= Decel;
+		} else if ((GetTransform().Axis.x > 0.f && GetTransform().Axis.x - Decel <= 0.f) || (GetTransform().Axis.x < 0.f && GetTransform().Axis.x - Decel >= 0.f)) {
+			GetTransform().Axis.x = 0.f;
+		}
+	}
+
+	if (!(GameEngineInput::GetInst()->IsPress("PlayerUp") || GameEngineInput::GetInst()->IsPress("PlayerDown")) && (GetTransform().Axis.y != 0.f)) {
+		Decel = (GetTransform().Axis.y / fabs(GetTransform().Axis.y)) * (GetTransform().Slope) * _DeltaTime;
+		if ((GetTransform().Axis.y > 0.f && GetTransform().Axis.y - Decel > 0.f) || (GetTransform().Axis.y < 0.f && GetTransform().Axis.y - Decel < 0.f)) {
+			GetTransform().Axis.y -= Decel;
+		} else if ((GetTransform().Axis.y > 0.f && GetTransform().Axis.y - Decel <= 0.f) || (GetTransform().Axis.y < 0.f && GetTransform().Axis.y - Decel >= 0.f)) {
+			GetTransform().Axis.y = 0.f;
+		}
+	}
 	GetTransform().Axis.x = fminf(GetTransform().Axis.x, 1.f);
 	GetTransform().Axis.y = fminf(GetTransform().Axis.y, 1.f);
 	GetTransform().Axis.x = fmaxf(GetTransform().Axis.x, -1.f);
@@ -430,9 +441,10 @@ void Player::Update(float _DeltaTime) {
 		float _NewSpeed = GetVertical() / sqrtf(fabsf(GetVertical()) + fabsf(GetHorizontal()));
 		_NewForce.y = _NewSpeed * Speed;
 	}
-
-	float4 asd = (CurrentVelocity * 0.8f + _NewForce * 0.2f);
-	GetTransform().SetWorldMove(asd * _DeltaTime);
+	
+	float4 qwe = GetTransform().Axis;
+	float4 SmoothMove = (CurrentVelocity * 0.8f + _NewForce * 0.2f);
+	GetTransform().SetWorldMove(SmoothMove * _DeltaTime);
 
 	CurrentVelocity = _NewForce;
 
@@ -461,19 +473,27 @@ void Player::Update(float _DeltaTime) {
 	}
 
 	if (GameEngineInput::GetInst()->IsPress("PlayerLeft")) {
-		if (GetTransform().Axis.x > 0.f) GetTransform().Axis.x *= 0.5f;
+		if (GetTransform().Axis.x == 0.f && GetTransform().Axis.y != 0.f) GetTransform().Axis.x = GetTransform().Axis.y * 0.25f;
+		if (GetTransform().Axis.x > 0.f) GetTransform().Axis.x *= 0.75f;
+
 		GetTransform().Axis.x -= (Accel) * _DeltaTime;
 	}
 	if (GameEngineInput::GetInst()->IsPress("PlayerRight")) {
-		if (GetTransform().Axis.x < 0.f) GetTransform().Axis.x *= 0.5f;
+		if (GetTransform().Axis.x == 0.f && GetTransform().Axis.y != 0.f) GetTransform().Axis.x = GetTransform().Axis.y * 0.25f;
+		if (GetTransform().Axis.x < 0.f) GetTransform().Axis.x *= 0.75f;
+
 		GetTransform().Axis.x += (Accel) * _DeltaTime;
 	}
 	if (GameEngineInput::GetInst()->IsPress("PlayerUp")) {
-		if (GetTransform().Axis.y < 0.f) GetTransform().Axis.y *= 0.5f;
+		if (GetTransform().Axis.y == 0.f && GetTransform().Axis.x != 0.f) GetTransform().Axis.y = GetTransform().Axis.x * 0.25f;
+		if (GetTransform().Axis.y < 0.f) GetTransform().Axis.y *= 0.75f;
+
 		GetTransform().Axis.y += (Accel) * _DeltaTime;
 	}
 	if (GameEngineInput::GetInst()->IsPress("PlayerDown")) {
-		if (GetTransform().Axis.y > 0.f) GetTransform().Axis.y *= 0.5f;
+		if (GetTransform().Axis.y == 0.f && GetTransform().Axis.x != 0.f) GetTransform().Axis.y = GetTransform().Axis.x * 0.25f;
+		if (GetTransform().Axis.y > 0.f) GetTransform().Axis.y *= 0.75f;
+
 		GetTransform().Axis.y -= (Accel) * _DeltaTime;
 	}
 

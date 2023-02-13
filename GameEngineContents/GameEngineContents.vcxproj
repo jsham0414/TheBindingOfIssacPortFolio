@@ -168,12 +168,15 @@
     </ClInclude>
     <ClInclude Include="Door.h" />
     <ClInclude Include="Enums.h" />
+    <ClInclude Include="GameMenu.h" />
     <ClInclude Include="GlobalContentsValue.h">
       <SubType>
       </SubType>
     </ClInclude>
     <ClInclude Include="Horf.h" />
     <ClInclude Include="HpInstance.h" />
+    <ClInclude Include="LoadingLevel.h" />
+    <ClInclude Include="LoadingUI.h" />
     <ClInclude Include="MapEditorLevel.h" />
     <ClInclude Include="MapEditorWindow.h">
       <SubType>
@@ -235,12 +238,15 @@
       </SubType>
     </ClCompile>
     <ClCompile Include="Door.cpp" />
+    <ClCompile Include="GameMenu.cpp" />
     <ClCompile Include="GlobalContentsValue.cpp">
       <SubType>
       </SubType>
     </ClCompile>
     <ClCompile Include="Horf.cpp" />
     <ClCompile Include="HpInstance.cpp" />
+    <ClCompile Include="LoadingLevel.cpp" />
+    <ClCompile Include="LoadingUI.cpp" />
     <ClCompile Include="MapEditorLevel.cpp" />
     <ClCompile Include="MapEditorWindow.cpp">
       <SubType>

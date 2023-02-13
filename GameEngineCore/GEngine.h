@@ -16,6 +16,7 @@ public:
 	static bool IsCollisionDebug();
 
 	static GameEngineLevel* GetCurrentLevel();
+	static GameEngineLevel* GetLevel(std::string _Name);
 	
 
 protected:

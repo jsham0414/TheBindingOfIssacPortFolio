@@ -39,6 +39,11 @@ public:
 		return Lerp(p1, p2, Time);
 	}
 
+	static float EaseOutQuint(float _Time) {
+		return 1.f - powf(1.f - _Time, 5.f);
+	}
+
+
 private:
 	// constrcuter destructer
 	GameEngineMath();

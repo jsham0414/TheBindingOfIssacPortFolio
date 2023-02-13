@@ -90,6 +90,10 @@ void GameEngineCameraActor::Update(float _DeltaTime)
 }
 
 bool GameEngineCameraActor::CameraMove(float4 _DestPos, float _Time) {
+	if (GetTransform().GetWorldPosition().x == _DestPos.x &&
+		GetTransform().GetWorldPosition().y == _DestPos.y)
+		return false;
+
 	if (CameraMoving == true)
 		return false;
 
@@ -109,21 +113,22 @@ void GameEngineCameraActor::CameraMoveLerp(float4 _DestPos, float _Time) {
 	while (fTime < _Time) {
 		DWORD NowTime = GetTickCount64() - LastTime;
 		float4 NewPos;
-		fTime = fmin((float)NowTime / 500.f, _Time);
-		NewPos.x = std::lerp(LastPos.x, _DestPos.x, fTime / _Time);
-		NewPos.y = std::lerp(LastPos.y, _DestPos.y, fTime / _Time);
+		fTime = fmin((float)NowTime / 1000.f, _Time);
+		NewPos.x = std::lerp(LastPos.x, _DestPos.x, GameEngineMath::EaseOutQuint(fTime / _Time));
+		NewPos.y = std::lerp(LastPos.y, _DestPos.y, GameEngineMath::EaseOutQuint(fTime / _Time));
 
 		GetTransform().SetWorldPosition(NewPos);
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
+	GetTransform().SetWorldPosition(_DestPos);
 	Mutex.lock();
 	CameraMoving = false;
 	Mutex.unlock();
 }
 
 void GameEngineCameraActor::MapChange(float4 _DestPos) {
-	auto Thread = std::thread(&GameEngineCameraActor::MapChangeLerp, this, _DestPos);
+	auto Thread = std::thread(&GameEngineCameraActor::CameraMoveLerp, this, _DestPos, 1.f);
 	Thread.detach();
 }
 
@@ -134,9 +139,9 @@ void GameEngineCameraActor::MapChangeLerp(float4 _DestPos) {
 	while (fTime < 1.f) {
 		DWORD NowTime = GetTickCount64() - LastTime;
 		float4 NewPos;
-		fTime = fmin((float)NowTime / 500.f, 1.f);
-		NewPos.x = std::lerp(LastPos.x, _DestPos.x, fTime);
-		NewPos.y = std::lerp(LastPos.y, _DestPos.y, fTime);
+		fTime = fmin((float)NowTime / 1000.f, 1.f);
+		NewPos.x = std::lerp(LastPos.x, _DestPos.x, GameEngineMath::EaseOutQuint(fTime));
+		NewPos.y = std::lerp(LastPos.y, _DestPos.y, GameEngineMath::EaseOutQuint(fTime));
 
 		Mutex.lock();
 		GetTransform().SetWorldPosition(NewPos);

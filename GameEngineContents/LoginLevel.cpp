@@ -15,84 +15,49 @@ LoginLevel::~LoginLevel()
 }
 
 
-void LoginLevel::Start()
-{
-	if (false == GameEngineInput::GetInst()->IsKey("LevelChange"))
-	{
-		GameEngineInput::GetInst()->CreateKey("LevelChange", 'P');
+void LoginLevel::Start() {
+	GameEngineDirectory Dir;
+	Dir.MoveParentToExitsChildDirectory("ContentsResources");
+	Dir.Move("ContentsResources");
+	Dir.Move("Texture");
+	Dir.Move("Title");
+
+	std::vector<GameEngineFile> Shaders = Dir.GetAllFile();
+
+	for (size_t i = 0; i < Shaders.size(); i++) {
+		if (GameEngineTexture::Find(Shaders[i].GetFileName()) != nullptr)
+			continue;
+
+		GameEngineTexture::Load(Shaders[i].GetFullPath());
+
+		if (Shaders[i].GetFileName() == "Draw1.png")
+			GameEngineTexture::Cut(Shaders[i].GetFileName(), 2, 1);
 	}
 
+	LoginUI* Ptr = CreateActor<LoginUI>(GameObjectGroup::UI);
 
-	// 줌인 줌아웃도 이녀석으로 할수 있습니다.
-	// GetMainCamera()->SetProjectionSize(float4{1920, 1080});
+	Dir.MoveParentToExitsChildDirectory("ContentsResources");
+	Dir.Move("ContentsResources");
+	Dir.Move("Texture");
+	Dir.Move("Loading");
 
-	// 카메라를 먼저 만들어서 세계를 볼 준비를 하고
-	//GetMainCameraActor()->GetTransform().SetLocalPosition({0.0f, 0.0f, -100.0f});
-	//GetMainCameraActor()->GetCameraComponent()->SetProjectionMode(CAMERAPROJECTIONMODE::Orthographic);
-	// [1][0][0][0]
-	// [0][1][0][0]
-	// [0][0][1][0] 앞을 보고 있다.
-	// [0][0][-100][0] 뒤로 물러나서
+	Shaders = Dir.GetAllFile();
 
-	// 세상에 보일 오브젝트들을 만들어서
-	// [800][0][0][0]
-	// [0][400][0][0]
-	// [0][0][1][0] 앞을 보고 있다.
-	// [0][200][0][0] 뒤로 물러나서
+	for (size_t i = 0; i < Shaders.size(); i++) {
+		if (GameEngineTexture::Find(Shaders[i].GetFileName()) != nullptr)
+			continue;
 
-	// Ptr->Death(0.0f);
-
+		GameEngineTexture::Load(Shaders[i].GetFullPath());
+	}
 }
 
 void LoginLevel::LevelStartEvent()
 {
-
-	if (nullptr == GameEngineTexture::Find("Title1.png"))
-	{
-		GameEngineDirectory Dir;
-		Dir.MoveParentToExitsChildDirectory("ContentsResources");
-		Dir.Move("ContentsResources");
-		Dir.Move("Texture");
-		Dir.Move("Title");
-
-		std::vector<GameEngineFile> Shaders = Dir.GetAllFile();
-
-		for (size_t i = 0; i < Shaders.size(); i++)
-		{
-			GameEngineTexture::Load(Shaders[i].GetFullPath());
-		}
-
-		LoginUI* Ptr = CreateActor<LoginUI>(GameObjectGroup::UI);
-	}
-
-
-	//{
-
-	//	if (nullptr == Player::GetMainPlayer())
-	//	{
-	//		Player* NewPlayer = CreateActor<Player>(OBJECTORDER::Player);
-	//		NewPlayer->SetLevelOverOn();
-	//	}
-
-	//}
-
-
-
 }
 
 void LoginLevel::Update(float _DeltaTime)
 {
-	if (GameEngineInput::GetInst()->IsDown("FreeCameaOnOff"))
-	{
-		// ;
-		GetMainCameraActor()->FreeCameraModeOnOff();
-	}
 
-
-	if (true == GameEngineInput::GetInst()->IsDown("LevelChange"))
-	{
-		GEngine::ChangeLevel("Play");
-	}
 }
 
 void LoginLevel::End()
