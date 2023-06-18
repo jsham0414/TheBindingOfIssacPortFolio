@@ -161,20 +161,28 @@
   <ItemGroup>
     <ClInclude Include="BatchDummy.h" />
     <ClInclude Include="Bomb.h" />
+    <ClInclude Include="BossUI.h" />
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="ContentsCore.h">
       <SubType>
       </SubType>
     </ClInclude>
+    <ClInclude Include="DamageBlood.h" />
     <ClInclude Include="Door.h" />
+    <ClInclude Include="DropItem.h" />
+    <ClInclude Include="DyingBlood.h" />
     <ClInclude Include="Enums.h" />
     <ClInclude Include="GameMenu.h" />
+    <ClInclude Include="Gaper.h" />
     <ClInclude Include="GlobalContentsValue.h">
       <SubType>
       </SubType>
     </ClInclude>
+    <ClInclude Include="HoldedItem.h" />
     <ClInclude Include="Horf.h" />
     <ClInclude Include="HpInstance.h" />
+    <ClInclude Include="ItemHolder.h" />
+    <ClInclude Include="ItemInfo.h" />
     <ClInclude Include="LoadingLevel.h" />
     <ClInclude Include="LoadingUI.h" />
     <ClInclude Include="MapEditorLevel.h" />
@@ -186,10 +194,13 @@
     <ClInclude Include="MapObjectBatcher.h" />
     <ClInclude Include="MetaSpriteWindow.h" />
     <ClInclude Include="MetaLevel.h" />
+    <ClInclude Include="Minimap.h" />
+    <ClInclude Include="MinimapIcon.h" />
     <ClInclude Include="Monster.h">
       <SubType>
       </SubType>
     </ClInclude>
+    <ClInclude Include="Monstro.h" />
     <ClInclude Include="Player.h">
       <SubType>
       </SubType>
@@ -199,6 +210,7 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="PlayMap.h" />
+    <ClInclude Include="PopUpMessage.h" />
     <ClInclude Include="PreCompile.h">
       <SubType>
       </SubType>
@@ -215,6 +227,9 @@
       <SubType>
       </SubType>
     </ClInclude>
+    <ClInclude Include="SlotMachine.h" />
+    <ClInclude Include="SlotMachineCard.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="StuffGuider.h" />
     <ClInclude Include="TileMapActor.h">
       <SubType>
@@ -232,19 +247,27 @@
   <ItemGroup>
     <ClCompile Include="BatchDummy.cpp" />
     <ClCompile Include="Bomb.cpp" />
+    <ClCompile Include="BossUI.cpp" />
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="ContentsCore.cpp">
       <SubType>
       </SubType>
     </ClCompile>
+    <ClCompile Include="DamageBlood.cpp" />
     <ClCompile Include="Door.cpp" />
+    <ClCompile Include="DropItem.cpp" />
+    <ClCompile Include="DyingBlood.cpp" />
     <ClCompile Include="GameMenu.cpp" />
+    <ClCompile Include="Gaper.cpp" />
     <ClCompile Include="GlobalContentsValue.cpp">
       <SubType>
       </SubType>
     </ClCompile>
+    <ClCompile Include="HoldedItem.cpp" />
     <ClCompile Include="Horf.cpp" />
     <ClCompile Include="HpInstance.cpp" />
+    <ClCompile Include="ItemHolder.cpp" />
+    <ClCompile Include="ItemInfo.cpp" />
     <ClCompile Include="LoadingLevel.cpp" />
     <ClCompile Include="LoadingUI.cpp" />
     <ClCompile Include="MapEditorLevel.cpp" />
@@ -256,10 +279,13 @@
     <ClCompile Include="MapObjectBatcher.cpp" />
     <ClCompile Include="MetaSpriteWindow.cpp" />
     <ClCompile Include="MetaLevel.cpp" />
+    <ClCompile Include="Minimap.cpp" />
+    <ClCompile Include="MinimapIcon.cpp" />
     <ClCompile Include="Monster.cpp">
       <SubType>
       </SubType>
     </ClCompile>
+    <ClCompile Include="Monstro.cpp" />
     <ClCompile Include="Player.cpp">
       <SubType>
       </SubType>
@@ -269,6 +295,7 @@
       </SubType>
     </ClCompile>
     <ClCompile Include="PlayMap.cpp" />
+    <ClCompile Include="PopUpMessage.cpp" />
     <ClCompile Include="PreCompile.cpp">
       <SubType>
       </SubType>
@@ -287,6 +314,8 @@
       <SubType>
       </SubType>
     </ClCompile>
+    <ClCompile Include="SlotMachine.cpp" />
+    <ClCompile Include="SlotMachineCard.cpp" />
     <ClCompile Include="StuffGuider.cpp" />
     <ClCompile Include="TileMapActor.cpp">
       <SubType>

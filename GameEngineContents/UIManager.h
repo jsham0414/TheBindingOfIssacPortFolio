@@ -4,6 +4,7 @@
 #include "../GameEngineCore/GameEngineLevel.h"
 #include "HpInstance.h"
 #include "StuffGuider.h"
+#include "BossUI.h"
 
 
 // Ό³Έν :
@@ -30,8 +31,11 @@ protected:
 	void End() {}
 
 	LinkedList<HpInstance*> HpList;
-	StuffGuider* Stuffs[static_cast<int>(StuffType::End)];
-		
+	StuffGuider* Stuffs[static_cast<int>(StuffType::Heart)];
+	
+	//std::unordered_map<std::string, GameEngineTextureRenderer*> AllRenderer;
+	BossUI* BossUIInstance;
+
 	GameEngineTextureRenderer* HpRenderer, * BombRenderer, * CoinRenderer, * KeyRenderer;
 };
 

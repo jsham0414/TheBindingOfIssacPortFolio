@@ -57,7 +57,6 @@ public:
 
 	void SetParent(GameEngineUpdateObject*) override;
 
-
 	void SetLevelOverOn() 
 	{
 		IsLevelOver = true;
@@ -85,6 +84,7 @@ public:
 
 protected:
 	virtual void Start() override;
+	virtual void Initialize() override;
 	virtual void Update(float _DeltaTime) override;
 	virtual void End() override;
 

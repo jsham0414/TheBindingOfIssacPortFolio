@@ -26,11 +26,13 @@ struct PixelData
 	float4 MulColor;
 	float4 PlusColor;
 	float4 Slice;
+	int FillType;
 
 	PixelData()
 		: MulColor(float4::WHITE)
 		, PlusColor(float4::ZERO)
 		, Slice(float4::ZERO)
+		, FillType(0)
 	{
 
 	}
@@ -306,20 +308,24 @@ public:
 		(*FrameAni)[Name].Time = _Function;
 	}
 
-	// À§Çè
-	std::map<std::string, FrameAnimation>* GetFrameAni() {
+	std::shared_ptr<std::map<std::string, FrameAnimation>> GetFrameAni() const {
 		return FrameAni;
 	}
 
-	void SetFrameAni(std::map<std::string, FrameAnimation>* _FrameAni) {
-		if (FrameAni != nullptr)
-			delete FrameAni;
+	void SetFrameAni(std::shared_ptr<std::map<std::string, FrameAnimation>> _FrameAni) {
+		FrameAni.reset();
+
+		Copied = true;
 
 		FrameAni = _FrameAni;
 	}
 
 	const FrameAnimation* GetCurAni() {
 		return CurAni;
+	}
+
+	const std::string& GetTexName() {
+		return TexName;
 	}
 
 protected:
@@ -330,16 +336,19 @@ protected:
 	void Update(float _Delta) override;
 
 private:
+	bool Copied = false;
+
 	PIVOTMODE PivotMode;
 	SCALEMODE ScaleMode;
 	float ScaleRatio;
 
+	std::string TexName;
 	GameEngineTexture* CurTex;
 
 	PixelData PixelDataInst;
 	AtlasData AtlasDataInst;
 
-	std::map<std::string, FrameAnimation>* FrameAni;
+	std::shared_ptr<std::map<std::string, FrameAnimation>> FrameAni;
 	FrameAnimation* CurAni;
 
 	void FrameDataReset();

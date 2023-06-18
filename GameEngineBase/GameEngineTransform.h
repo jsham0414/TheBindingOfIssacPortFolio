@@ -198,15 +198,15 @@ public:
 	inline void SetWorldMove(const float4& _Value)
 	{
 		// 충돌 감지 할 것인지
-		Power += _Value;
+		Impulse += _Value;
 		//SetWorldPosition(Data.WorldPosition + _Value);
 	}
 
-	inline void SetPower(const float4& _Value) {
+	inline void SetPower(const float& _Value) {
 		Power = _Value;
 	}
 
-	inline float4 GetPower() {
+	inline float GetPower() {
 		return Power;
 	}
 
@@ -323,13 +323,12 @@ public:
 
 	void Copy(const GameEngineTransform& _Trans);
 
-	virtual void Start() { Power = float4::ZERO; }
+	virtual void Start() { 
+		Power = 0.f; 
+	}
 	virtual void Update(float _DeltaTime) {
-
-
-		SetWorldPosition(Data.WorldPosition + Power);
-		Impulse = Accel * _DeltaTime;
 		SetWorldPosition(Data.WorldPosition + Impulse);
+		SetWorldPosition(Data.WorldPosition + Accel * _DeltaTime);
 		float4 _Decel = Accel * 2.f * _DeltaTime;
 
 		if ((Accel.x > 0.f && Accel.x - _Decel.x > 0.f) || (Accel.x < 0.f && Accel.x - _Decel.x < 0.f)) {
@@ -344,13 +343,12 @@ public:
 			Accel.y = 0.f;
 		}
 
-		Power = float4::ZERO;
 		Impulse = float4::ZERO;
 	}
 	virtual void End() {}
 
 	void StopPhysics() {
-		Power = float4::ZERO;
+		Power = 0.f;
 		Impulse = float4::ZERO;
 		Accel = float4::ZERO;
 	}
@@ -362,6 +360,8 @@ public:
 	float Slope;
 	float4 Accel;
 	float Mass;
+
+	float4 LastMove;
 
 protected:
 
@@ -452,7 +452,7 @@ private:
 	}
 
 	CollisionData CollisionDataObject;
-	float4 Power;
+	float Power;
 	bool IsStatic = false;
 
 	void CollisionScaleSetting();

@@ -49,7 +49,7 @@ GameEngineFont* GameEngineFont::Load(const std::string& _Path, const std::string
 void GameEngineFont::LoadFont(const std::string& _Path)
 {
 	std::wstring WPath = GameEngineString::AnsiToUnicodeReturn(_Path);
-
+	
 	if (S_OK != FontFactiory->CreateFontWrapper(GameEngineDevice::GetDevice(), WPath.c_str(), &FontWrapper))
 	{
 		MsgBoxAssert("폰트 생성에 실패했습니다");
@@ -71,5 +71,6 @@ void GameEngineFont::FontDraw(const std::string& _Text, float _FontSize, float4 
 	//	FontWrapper->DrawString(GameEngineDevice::GetContext(), Character.c_str(), _FontSize, _ScreenPos.x, _ScreenPos.y, Color.GetUIntColor(), Flag);
 	//}
 
-	FontWrapper->DrawString(GameEngineDevice::GetContext(), Text.c_str(), _FontSize, _ScreenPos.x, _ScreenPos.y, Color.GetUIntColor(), Flag);
+	
+	FontWrapper->DrawString(GameEngineDevice::GetContext(), Text.c_str(), _FontSize, _ScreenPos.x, _ScreenPos.y, Color.GetUIntColor(), FW1_RESTORESTATE | Flag);
 }

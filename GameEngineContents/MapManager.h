@@ -6,8 +6,10 @@
 #include "../GameEngineCore/GameEngineLevel.h"
 #include "Door.h"
 #include "Wall.h"
+#include "Minimap.h"
 
 // 설명 :
+class Minimap;
 class GameEngineCollision;
 class GameEngineTextureRenderer;
 class MapManager : public GameEngineActor {
@@ -35,38 +37,53 @@ public:
 	void MoveRoomPos(float4 _DestPos, int _Direction = 0);
 	void TurnOffLastRoom();
 
+	void CheckEnemies(bool _Forced = false);
+	void ObjectDestory(GameEngineActor* _Actor);
+
+	int GetRoomType(int _Index);
+	PlayMap* GetMap(int _Index);
+	PlayMap* GetCurrentMap();
+	int GetObjectSpawnType(int _X, int _Y);
 protected:
 	void Start() override;
 	void Update(float _DeltaTime);
 	void End() {}
 
-	PlayMap* GetCurrentMap();
-	PlayMap* GetMap(int _Index);
 	int GetCurMapEnemyCount();
 	bool PlayerCollision(GameEngineCollision* _This, GameEngineCollision* _Other);
 	void LoadMapFormData();
-	bool Visit(int i);
-	int NCount(int i);
+	bool Visit(std::unordered_map<int, int>& _RoomPlan, int i);
+	int NCount(std::unordered_map<int, int>& _RoomPlan, int i);
 
 	GameEngineTextureRenderer* Renderer;
 
 private:
 	int Width;
 	int Height;
+
+	const int RoomWidth;
+	const int RoomHeight;
+
 	int MaxRoomCount;
 	int MinRoomCount;
 	int RoomCount;
-	int* RoomPlan;
 	int StartPos;
 	int SpecialRoomCount;
 	int CurRoomIndex;
 	int LastRoomIndex;
-	const static int Move[4];
 
+	float4 StartOffset;
+	int TileSize;
+
+	constexpr static int Move[4] = { 10, -1, 1, -10 };
+
+	// static 오브젝트들 충돌 체크용
+	int ObjectSpawnType[7][13];
 	std::vector<int> EndRoom;
 	std::queue<int> RoomQueue;
 	std::map<int, PlayMap*> PlayMaps;
 	std::map<int, std::vector<std::string>> MapFormData;
+	Minimap* MinimapUI;
 
 	std::thread MapMoveThread;
 };

@@ -8,6 +8,7 @@
 
 LoginLevel::LoginLevel()
 {
+	SetName("Login");
 }
 
 LoginLevel::~LoginLevel()

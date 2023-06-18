@@ -17,6 +17,9 @@ MetaSpriteWindow::~MetaSpriteWindow()
 
 void MetaSpriteWindow::Initialize(GameEngineLevel* _Level) 
 {
+    GameEngineActor* NewActor = _Level->CreateActor<GameEngineActor>();
+
+    Renderer = NewActor->CreateComponent<GameEngineTextureRenderer>();
 }
 
 void MetaSpriteWindow::OnGUI(GameEngineLevel* _Level, float _DeltaTime) 
@@ -24,6 +27,9 @@ void MetaSpriteWindow::OnGUI(GameEngineLevel* _Level, float _DeltaTime)
     AtlasFileButton(_Level);
     MetaFileButton(_Level);
 
+    if (ImGui::CollapsingHeader("Cut")) {
+        ImageCutButton(_Level);
+    }
     // AtlasFileButton();
     // MetaFileButton();
 }
@@ -36,8 +42,9 @@ void MetaSpriteWindow::MetaFileButton(GameEngineLevel* _Level)
         return;
     }
 
+    ImGui::SameLine();
 
-    if (true == ImGui::Button("MetaFileLoad") && 0 == TargetTexture->GetCutCount())
+    if (true == ImGui::Button("MetaFileLoad") && 1 == TargetTexture->GetCutCount())
     {
 
         std::string Path = GameEngineGUI::OpenFileDlg(GameEngineString::AnsiToUTF8Return("메타 파일 로드"), MetaDir.GetFullPath());
@@ -119,11 +126,10 @@ void MetaSpriteWindow::MetaFileButton(GameEngineLevel* _Level)
                 StartPos += 1;
             }
 
-            GameEngineActor* NewActor = _Level->CreateActor<GameEngineActor>();
+            //GameEngineActor* NewActor = _Level->CreateActor<GameEngineActor>();
 
-            NewActor->GetTransform().SetLocalPosition(float4{-500.0f, 0.0f, 0.0f});
+            //NewActor->GetTransform().SetLocalPosition(float4{-500.0f, 0.0f, 0.0f});
 
-            Renderer = NewActor->CreateComponent<GameEngineTextureRenderer>();
             Renderer->SetTexture(TargetTexture, 0);
             Renderer->SetSamplingModePoint();
             Renderer->ScaleToCutTexture(2);
@@ -147,9 +153,10 @@ void MetaSpriteWindow::MetaFileButton(GameEngineLevel* _Level)
 
     if (nullptr != TargetTexture)
     {
-        float4 ImagePos = TargetTexture->GetScale().Half();
+        float4 WindowScale = GameEngineWindow::GetScale();
+        float4 ImagePos = WindowScale.Half() - TargetTexture->GetScale().Half();
 
-        ImagePos.y = -ImagePos.y;
+        ImagePos.y;
 
         GameEngineDebug::DrawTexture(TargetTexture, ImagePos);
 
@@ -158,8 +165,8 @@ void MetaSpriteWindow::MetaFileButton(GameEngineLevel* _Level)
             float4 Pos = TargetTexture->GetCutPos(i);
             float4 Scale = TargetTexture->GetCutScale(i);
 
-            Pos.y = -Pos.y;
-            Pos.x += Scale.x * 0.5f;
+            Pos.y = Pos.y;
+            Pos.x = Scale.x * 0.5f;
             Pos.y -= Scale.y * 0.5f;
 
             GameEngineDebug::DrawBox(Pos, Scale, float4::ZERO, float4(1.0f, 0.0f, 0.0f, 0.5f));
@@ -192,6 +199,23 @@ void MetaSpriteWindow::AtlasFileButton(GameEngineLevel* _Level)
         ImGui::SameLine();
         ImGui::Text(TargetTexture->GetNameCopy().c_str());
     }
+}
+
+void MetaSpriteWindow::ImageCutButton(GameEngineLevel* _Level) {
+    static int c[2] = { 0 };
+
+    if (TargetTexture == nullptr)
+        return;
+
+    ImGui::InputInt2("Cut", c);
+    for (int i = 0; i < _countof(c); i++)
+        c[i] = max(1, c[i]);
+
+    if (true == ImGui::Button("Image Cut")) {
+        float4 Scale = TargetTexture->GetScale();
+        TargetTexture->Cut(c[0], c[1]);
+    }
+    CurFrame = 0;
 }
 
 //

@@ -106,7 +106,7 @@ public:
 		return { CutData[_Index].PosX * static_cast<float>(Desc.Width), CutData[_Index].PosY * static_cast<float>(Desc.Height) };
 	}
 
-	float4 GetCutScale(int _Index)
+	float4 GetCutScale(int _Index = 0)
 	{					
 		return { CutData[_Index].SizeX * static_cast<float>(Desc.Width), CutData[_Index].SizeY * static_cast<float>(Desc.Height)};
 	}
@@ -118,6 +118,7 @@ public:
 	float4 GetPixelToFloat4(int _x, int _y);
 
 	void Cut(UINT _StartX, UINT _StartY, UINT _SizeX, UINT _SizeY);
+	void Cut(UINT _X, UINT _Y);
 
 
 protected:
@@ -136,7 +137,5 @@ private:
 	// ID3D11RenderTargetView* Render;
 
 	std::vector<float4> CutData;
-
-	void Cut(UINT _X, UINT _Y);
 };
 

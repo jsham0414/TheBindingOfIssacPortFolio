@@ -10,7 +10,6 @@ class GameEngineWindow
 {
 private:
 	static GameEngineWindow* Inst_;
-
 public:
 	inline static GameEngineWindow* GetInst() 
 	{

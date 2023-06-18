@@ -1,6 +1,7 @@
 #pragma once
 #include "GameEngineActor.h"
 #include "GameEngineCamera.h"
+#include "GameEngineStateManager.h"
 #include <thread>
 
 // Ό³Έν :
@@ -35,25 +36,32 @@ public:
 
 	bool CameraMove(float4 _DestPos, float _Time = 1.f);
 
-	void CameraMoveLerp(float4 _DestPos, float _Time);
-
-	void MapChange(float4 _DestPos);
-	void MapChangeLerp(float4 _DestPos);
-
 	bool IsMoving() {
 		return CameraMoving;
 	}
 
+	GameEngineStateManager StateManager;
 protected:
 
 	void Start() override;
 	void End() override;
 
+	void MovingStart(const StateInfo& _Info);
+	void MovingUpdate(float _DeltaTime, const StateInfo& _Info);
+
+	void IdleStart(const StateInfo& _Info);
+	void IdleUpdate(float _DeltaTime, const StateInfo& _Info);
+
 private:
+	float MoveTime;
+
+	float4 PrevPos, DestPos;
+
 	bool FreeCameraMode;
 	float Speed;
 	float RotSpeed;
 	bool CameraMoving;
+	bool RoomCheck;
 
 	GameEngineCamera* CameraComponent;
 	GameEngineTransform OriginTrans;

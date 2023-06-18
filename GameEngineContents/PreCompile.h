@@ -85,7 +85,7 @@ public:
 		}
 		Size++;
 	}
-	inline void AddNode(T _Data) {
+	inline Node<T>* AddNode(T _Data) {
 		Node<T>* Temp = new Node<T>();
 
 		Temp->Data = _Data;
@@ -99,6 +99,8 @@ public:
 			Tail = Temp;
 		}
 		Size++;
+
+		return Temp;
 	}
 
 	inline void InsertNode(Node<T>* _PrevNode, T _Data) {
@@ -135,10 +137,12 @@ struct ObjectBatchInfo {
 		this->Index = _Info.Index;
 		this->Name = _Info.Name;
 		this->Renderer = _Info.Renderer;
+		this->Texture = _Info.Texture;
 	}
 	int Index;
 	string Name;
 	GameEngineTextureRenderer* Renderer;
+	ID3D11ShaderResourceView* Texture;
 };
 
 class CONTAINER_DELETE {

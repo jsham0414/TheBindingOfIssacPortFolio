@@ -14,6 +14,8 @@
 
 GameEngineLevel::GameEngineLevel() 
 {
+	Pause = false;
+
 	MapManagerInstance = nullptr;
 
 	Cameras.resize(static_cast<unsigned int>(CAMERAORDER::UICAMERA));
@@ -58,14 +60,16 @@ void GameEngineLevel::ActorUpdate(float _DeltaTime) {
 			continue;
 
 		for (GameEngineActor* const Actor : Group.second) {
-			if (false == Actor->IsUpdate()) {
+
+			if (false == Actor->IsUpdate())
 				continue;
-			}
+			if (Pause == true && !Actor->IsLevelOver)
+				continue;
 			if (Actor->IsUpdateRef())
 				Actor->On();
 
-			Actor->AllUpdate(_DeltaTime);
 
+			Actor->AllUpdate(_DeltaTime);
 		}
 	}
 }
@@ -82,6 +86,9 @@ void GameEngineLevel::ActorTransformUpdate(float _DeltaTime) {
 			if (false == Actor->IsUpdate()) {
 				continue;
 			}
+			if (Pause == true && !Actor->IsLevelOver)
+				continue;
+
 			Actor->GetTransform().Update(_DeltaTime);
 		}
 	}

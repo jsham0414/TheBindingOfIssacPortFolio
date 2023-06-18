@@ -5,7 +5,7 @@
 #include <GameEngineBase/GameEngineNameObject.h>
 #include <GameEngineBase/GameEngineString.h>
 
-// 설명 :
+// 설명 : 
 template<typename ResType>
 class GameEngineRes : public GameEngineNameObject
 {
@@ -72,7 +72,7 @@ protected:
 	{
 		if (NamedRes.end() != NamedRes.find(GameEngineString::ToUpperReturn(_Name)))
 		{
-			MsgBoxAssertString("같은 이름의 리소스를 또 생성했습니다." + _Name);
+			//MsgBoxAssertString("같은 이름의 리소스를 또 생성했습니다." + _Name);
 		}
 
 		ResType* Res = CreateRes(_Name);

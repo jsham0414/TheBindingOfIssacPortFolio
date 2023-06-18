@@ -16,6 +16,7 @@ GameEngineActor::~GameEngineActor()
 }
 
 void GameEngineActor::Start() {}
+void GameEngineActor::Initialize() {}
 void GameEngineActor::Update(float _DeltaTime) {}
 void GameEngineActor::End() {}
 

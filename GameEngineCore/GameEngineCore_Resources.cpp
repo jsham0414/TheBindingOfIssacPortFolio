@@ -366,7 +366,7 @@ void EngineMesh()
 		GameEngineIndexBuffer::Create("Box", Index);
 	}
 
-	GameEngineFont::Load("µ¸¿ò");
+	//GameEngineFont::Load("SEBANGGothic.ttf");
 }
 
 void GameEngineCore::EngineResourcesInitialize()

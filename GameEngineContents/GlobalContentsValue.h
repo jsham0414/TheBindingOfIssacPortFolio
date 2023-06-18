@@ -11,10 +11,11 @@ enum class OBJECTORDER {
 	Manager,
 	Wall,
 	AirWall,
+	Bomb,
+	Static,
 	
 	UI = 1000,
 };
-
 
 //enum class COLLISIONORDER
 //{

@@ -13,6 +13,7 @@ public:
 	template<typename CoreType>
 	static void Start()
 	{
+		srand((unsigned)time(NULL));
 		GameEngineDebug::LeakCheckOn();
 
 		// 여기에서 만들어진 이 코어를 알아야 하는거지.

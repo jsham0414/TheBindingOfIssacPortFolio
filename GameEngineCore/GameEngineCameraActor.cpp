@@ -7,20 +7,16 @@ GameEngineCameraActor::GameEngineCameraActor()
 	: CameraComponent(nullptr)
 	, RotSpeed(180.0f)
 	, Speed(500.0f)
-	, CameraMoving(false)
-{
+	, CameraMoving(false) {
 }
 
-GameEngineCameraActor::~GameEngineCameraActor() 
-{
+GameEngineCameraActor::~GameEngineCameraActor() {
 }
 
-void GameEngineCameraActor::Start() 
-{
+void GameEngineCameraActor::Start() {
 	CameraComponent = CreateComponent<GameEngineCamera>();
 
-	if (false == GameEngineInput::GetInst()->IsKey("CamMoveForward"))
-	{
+	if (false == GameEngineInput::GetInst()->IsKey("CamMoveForward")) {
 		GameEngineInput::GetInst()->CreateKey("CamMoveForward", 'W');
 		GameEngineInput::GetInst()->CreateKey("CamMoveBack", 'S');
 		GameEngineInput::GetInst()->CreateKey("CamMoveUp", 'Q');
@@ -32,54 +28,57 @@ void GameEngineCameraActor::Start()
 		GameEngineInput::GetInst()->CreateKey("CamRot", VK_RBUTTON);
 	}
 
+
+	StateManager.CreateStateMember("Idle"
+		, std::bind(&GameEngineCameraActor::IdleUpdate, this, std::placeholders::_1, std::placeholders::_2)
+		, std::bind(&GameEngineCameraActor::IdleStart, this, std::placeholders::_1)
+	);
+
+	StateManager.CreateStateMember("Moving"
+		, std::bind(&GameEngineCameraActor::MovingUpdate, this, std::placeholders::_1, std::placeholders::_2)
+		, std::bind(&GameEngineCameraActor::MovingStart, this, std::placeholders::_1)
+	);
+
+	StateManager.ChangeState("Idle");
 }
 
-void GameEngineCameraActor::Update(float _DeltaTime)
-{
-	if (false == FreeCameraMode)
-	{
+void GameEngineCameraActor::Update(float _DeltaTime) {
+	if (false == FreeCameraMode) {
+		StateManager.Update(_DeltaTime);
 		return;
 	}
 
 	float MoveSpeed = Speed;
 
-	if (GameEngineInput::GetInst()->IsPress("CamMoveBoost"))
-	{
+	if (GameEngineInput::GetInst()->IsPress("CamMoveBoost")) {
 		MoveSpeed *= 3.0f;
 	}
 
-	if (GameEngineInput::GetInst()->IsPress("CamMoveForward"))
-	{
+	if (GameEngineInput::GetInst()->IsPress("CamMoveForward")) {
 		GetTransform().SetWorldForwardMove(MoveSpeed, _DeltaTime);
 	}
 
-	if (GameEngineInput::GetInst()->IsPress("CamMoveBack"))
-	{
+	if (GameEngineInput::GetInst()->IsPress("CamMoveBack")) {
 		GetTransform().SetWorldBackMove(MoveSpeed, _DeltaTime);
 	}
 
-	if (GameEngineInput::GetInst()->IsPress("CamMoveUp"))
-	{
+	if (GameEngineInput::GetInst()->IsPress("CamMoveUp")) {
 		GetTransform().SetWorldUpMove(MoveSpeed, _DeltaTime);
 	}
 
-	if (GameEngineInput::GetInst()->IsPress("CamMoveDown"))
-	{
+	if (GameEngineInput::GetInst()->IsPress("CamMoveDown")) {
 		GetTransform().SetWorldDownMove(MoveSpeed, _DeltaTime);
 	}
 
-	if (GameEngineInput::GetInst()->IsPress("CamMoveLeft"))
-	{
+	if (GameEngineInput::GetInst()->IsPress("CamMoveLeft")) {
 		GetTransform().SetWorldLeftMove(MoveSpeed, _DeltaTime);
 	}
 
-	if (GameEngineInput::GetInst()->IsPress("CamMoveRight"))
-	{
+	if (GameEngineInput::GetInst()->IsPress("CamMoveRight")) {
 		GetTransform().SetWorldRightMove(MoveSpeed, _DeltaTime);
 	}
 
-	if (GameEngineInput::GetInst()->IsPress("CamRot"))
-	{
+	if (GameEngineInput::GetInst()->IsPress("CamRot")) {
 		float4 MouseDir = CameraComponent->GetMouseWorldDir();
 		float4 RotMouseDir;
 		RotMouseDir.x = -MouseDir.y;
@@ -90,89 +89,68 @@ void GameEngineCameraActor::Update(float _DeltaTime)
 }
 
 bool GameEngineCameraActor::CameraMove(float4 _DestPos, float _Time) {
+	_DestPos += float4::BACK * 1000.f;
+
 	if (GetTransform().GetWorldPosition().x == _DestPos.x &&
 		GetTransform().GetWorldPosition().y == _DestPos.y)
 		return false;
 
-	if (CameraMoving == true)
-		return false;
+	PrevPos = GetTransformData().WorldPosition;
+	DestPos = _DestPos;
+	MoveTime = _Time;
 
-	auto Thread = std::thread(&GameEngineCameraActor::CameraMoveLerp, this, _DestPos, _Time);
-	Thread.detach();
+	StateManager.ChangeState("Moving");
 	return true;
 }
 
-void GameEngineCameraActor::CameraMoveLerp(float4 _DestPos, float _Time) {
-	Mutex.lock();
+void GameEngineCameraActor::End() {
+
+}
+
+void GameEngineCameraActor::MovingStart(const StateInfo& _Info) {
 	CameraMoving = true;
-	Mutex.unlock();
+	RoomCheck = false;
+}
 
-	DWORD LastTime = GetTickCount64();
-	float4 LastPos = GetTransform().GetWorldPosition();
-	float fTime = 0.f;
-	while (fTime < _Time) {
-		DWORD NowTime = GetTickCount64() - LastTime;
-		float4 NewPos;
-		fTime = fmin((float)NowTime / 1000.f, _Time);
-		NewPos.x = std::lerp(LastPos.x, _DestPos.x, GameEngineMath::EaseOutQuint(fTime / _Time));
-		NewPos.y = std::lerp(LastPos.y, _DestPos.y, GameEngineMath::EaseOutQuint(fTime / _Time));
+void GameEngineCameraActor::MovingUpdate(float _DeltaTime, const StateInfo& _Info) {
+	float NowTime = _Info.StateTime / MoveTime;
+	float ProgressTime = fmin(1.f, NowTime);
+	float4 NewPos = float4::Lerp(PrevPos, DestPos, GameEngineMath::EaseOutQuint(ProgressTime));
+	GetTransform().SetWorldPosition(NewPos);
 
-		GetTransform().SetWorldPosition(NewPos);
+	if (GetLevel()->CompareName("Play")) {
+		if (ProgressTime > 0.5f && !RoomCheck) {
+			RoomCheck = true;
+			GetLevel()->GetMapManager()->CheckEnemies(true);
+		}
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		if (ProgressTime >= 1.f) {
+			GetLevel()->GetMapManager()->TurnOffLastRoom();
+			StateManager.ChangeState("Idle");
+		}
+	} else {
+		if (ProgressTime >= 1.f) {
+			StateManager.ChangeState("Idle");
+		}
 	}
-	GetTransform().SetWorldPosition(_DestPos);
-	Mutex.lock();
+}
+
+void GameEngineCameraActor::IdleStart(const StateInfo& _Info) {
 	CameraMoving = false;
-	Mutex.unlock();
 }
 
-void GameEngineCameraActor::MapChange(float4 _DestPos) {
-	auto Thread = std::thread(&GameEngineCameraActor::CameraMoveLerp, this, _DestPos, 1.f);
-	Thread.detach();
-}
-
-void GameEngineCameraActor::MapChangeLerp(float4 _DestPos) {
-	DWORD LastTime = GetTickCount64();
-	float4 LastPos = GetTransform().GetWorldPosition();
-	float fTime = 0.f;
-	while (fTime < 1.f) {
-		DWORD NowTime = GetTickCount64() - LastTime;
-		float4 NewPos;
-		fTime = fmin((float)NowTime / 1000.f, 1.f);
-		NewPos.x = std::lerp(LastPos.x, _DestPos.x, GameEngineMath::EaseOutQuint(fTime));
-		NewPos.y = std::lerp(LastPos.y, _DestPos.y, GameEngineMath::EaseOutQuint(fTime));
-
-		Mutex.lock();
-		GetTransform().SetWorldPosition(NewPos);
-		Mutex.unlock();
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-	}
-
-	GetLevel()->GetMapManager()->TurnOffLastRoom();
-
-	//Player::GetMainPlayer()->GetCollision()->On();
-}
-
-void GameEngineCameraActor::End() 
-{
-
+void GameEngineCameraActor::IdleUpdate(float _DeltaTime, const StateInfo& _Info) {
 }
 
 
-void GameEngineCameraActor::FreeCameraModeOnOff()
-{
+void GameEngineCameraActor::FreeCameraModeOnOff() {
 	FreeCameraMode = !FreeCameraMode;
 
-	if (true == FreeCameraMode)
-	{
+	if (true == FreeCameraMode) {
 		PrevMode = CameraComponent->GetProjectionMode();
 		CameraComponent->SetProjectionMode(CAMERAPROJECTIONMODE::PersPective);
 		OriginTrans.Copy(GetTransform());
-	}
-	else 
-	{
+	} else {
 		CameraComponent->SetProjectionMode(PrevMode);
 		GetTransform().Copy(OriginTrans);
 	}

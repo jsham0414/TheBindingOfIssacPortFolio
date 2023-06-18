@@ -25,6 +25,10 @@ public:
 		Update(_DeltaTime, Info);
 	}
 
+	void ResetStateTime() {
+		Info.StateTime = 0.f;
+	}
+
 private:
 	StateInfo Info;
 	std::function<void(const StateInfo&)> Start;
@@ -133,6 +137,10 @@ public:
 		}
 
 		return CurState->Info.StateTime;
+	}
+
+	void ResetStateTime() {
+		CurState->ResetStateTime();
 	}
 
 protected:

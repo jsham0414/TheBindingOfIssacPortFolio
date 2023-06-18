@@ -5,8 +5,7 @@
 #include <GameEngineBase/GameEngineDebugObject.h>
 
 
-class GameEngineUpdateObject : public GameEngineDebugObject
-{
+class GameEngineUpdateObject : public GameEngineDebugObject {
 public:
 	// constrcuter destructer
 	GameEngineUpdateObject();
@@ -46,23 +45,27 @@ public:
 	{
 		if (nullptr != Parent)
 		{
-			return IsUpdate_ && false == IsDeath_ && true == Parent->IsUpdate();
+			return IsUpdate_ && false == *IsDeath_ && true == Parent->IsUpdate();
 		}
 		else
 		{
-			return IsUpdate_ && false == IsDeath_;
+			return IsUpdate_ && false == *IsDeath_;
 		}
 
+	}
+
+	inline std::shared_ptr<std::atomic<bool>> GetDeathPtr() {
+		return IsDeath_;
 	}
 
 	inline bool IsDeath()
 	{
 		if (nullptr != Parent)
 		{
-			return IsDeath_ || true == Parent->IsDeath();
+			return *IsDeath_ || true == Parent->IsDeath();
 		}
 		else {
-			return IsDeath_;
+			return *IsDeath_;
 		}
 	}
 
@@ -81,9 +84,12 @@ public:
 		AccTime_ = 0.0f;
 	}
 
-	inline void Death()
-	{
-		IsDeath_ = true;
+	inline void Death() {
+		*IsDeath_ = true;
+	}
+
+	inline void Alive() {
+		*IsDeath_ = false;
 	}
 
 	void ReleaseUpdate(float _DeltaTime)
@@ -97,7 +103,8 @@ public:
 
 		if (0.0f >= DeathTime_)
 		{
-			IsDeath_ = true;
+			*IsDeath_ = true;
+			IsReleaseUpdate_ = false;
 		}
 	}
 
@@ -182,19 +189,18 @@ protected:
 	void AllOnEvent();
 	void AllOffEvent();
 
-	// 이 오브젝트가 동작을 하기 시작했다.
-	virtual void OnEvent() {}//레벨체인지 스타트
-												//레벨에선 이런개념 액터나 컴포넌트도 갖고있다.
-	// 이 오브젝트가 꺼졌다.
-	virtual void OffEvent() {}//레벨체인지 엔드
+	virtual void OnEvent() {}
 
-	// 이 오브젝트가 만들어졌다.
+	// 이 오브젝트가 꺼졌다.
+	virtual void OffEvent() {}
+
 	virtual void Start() = 0;
 
-	// 이 오브젝트가 메모리가 삭제된다.
+	virtual void Initialize() {};
+
 	virtual void End() = 0;
 
-	virtual void ReleaseObject(std::list<GameEngineUpdateObject*>& _RelaseList);
+	virtual void ReleaseObject(std::list<GameEngineUpdateObject*>& _ReleaseList);
 
 	std::list<GameEngineUpdateObject*> Childs;
 
@@ -202,13 +208,14 @@ protected:
 
 
 private:
+	std::shared_ptr<std::atomic_bool> IsDeath_;
+
 	int Order_;
 	bool IsReleaseUpdate_;
 	float DeathTime_;
 	float AccTime_;
 
 	bool IsUpdate_;
-	bool IsDeath_;
 
 	GameEngineUpdateObject* Parent;
 };

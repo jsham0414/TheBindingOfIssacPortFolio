@@ -15,6 +15,7 @@ public:
 
 	MetaSpriteWindow* MetaAnimationGUI_;
 
+	bool LoadTexture() override { return true; }
 protected:
 	void Start() override;
 	void Update(float _DeltaTime) override;

@@ -12,16 +12,12 @@ public:
 	Horf& operator=(const Horf& _Other) = delete;
 	Horf& operator=(Horf&& _Other) noexcept = delete;
 
-	virtual void Damage();
-
 protected:
 	float Power;
 	float Period;
 	DWORD AttackDelay;
 	DWORD LastDelay;
 	float Size;
-
-	int Hp;
 
 	bool ShootOnce;
 

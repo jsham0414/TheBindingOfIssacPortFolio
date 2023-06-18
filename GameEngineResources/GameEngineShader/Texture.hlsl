@@ -49,8 +49,7 @@ float4 Texture_PS(Output _Input) : SV_Target0
 {
     float4 Color = Tex.Sample(Smp, _Input.Tex);
     
-    if (Color.a <= 0.0f)
-    {
+    if (Color.a <= 0.0f) {
         clip(-1);
     }
     

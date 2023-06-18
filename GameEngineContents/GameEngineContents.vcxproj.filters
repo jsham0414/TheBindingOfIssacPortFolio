@@ -43,6 +43,18 @@
     <Filter Include="Actor\05.Loading">
       <UniqueIdentifier>{6141a65e-291b-4739-98ca-582c8e109d59}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Actor\98.Manager">
+      <UniqueIdentifier>{392a388c-680d-412c-a888-df4e758f710d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Actor\02.Play\Monster">
+      <UniqueIdentifier>{9303e1f6-24a6-4881-95f4-b452c10b9e61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Actor\02.Play\UI">
+      <UniqueIdentifier>{364087a4-3f65-47fd-998f-162dd4352cd7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Actor\02.Play\Static">
+      <UniqueIdentifier>{b188e558-cb05-4121-9713-871febc319cc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ContentsCore.h">
@@ -62,9 +74,6 @@
     </ClInclude>
     <ClInclude Include="Enums.h">
       <Filter>Global</Filter>
-    </ClInclude>
-    <ClInclude Include="Monster.h">
-      <Filter>Actor\02.Play</Filter>
     </ClInclude>
     <ClInclude Include="GlobalContentsValue.h" />
     <ClInclude Include="PreCompile.h">
@@ -97,9 +106,6 @@
     <ClInclude Include="Bullet.h">
       <Filter>Actor\02.Play</Filter>
     </ClInclude>
-    <ClInclude Include="Horf.h">
-      <Filter>Actor\02.Play</Filter>
-    </ClInclude>
     <ClInclude Include="PlayMap.h">
       <Filter>Actor\02.Play</Filter>
     </ClInclude>
@@ -109,14 +115,12 @@
     <ClInclude Include="BatchDummy.h">
       <Filter>Actor\02.Play</Filter>
     </ClInclude>
-    <ClInclude Include="MapManager.h" />
     <ClInclude Include="Door.h">
       <Filter>Actor\02.Play</Filter>
     </ClInclude>
     <ClInclude Include="Wall.h">
       <Filter>Actor\02.Play</Filter>
     </ClInclude>
-    <ClInclude Include="UIManager.h" />
     <ClInclude Include="HpInstance.h">
       <Filter>Actor\02.Play</Filter>
     </ClInclude>
@@ -138,6 +142,55 @@
     <ClInclude Include="LoadingUI.h">
       <Filter>Actor\05.Loading</Filter>
     </ClInclude>
+    <ClInclude Include="UIManager.h">
+      <Filter>Actor\98.Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="MapManager.h">
+      <Filter>Actor\98.Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemHolder.h">
+      <Filter>Actor\02.Play</Filter>
+    </ClInclude>
+    <ClInclude Include="HoldedItem.h">
+      <Filter>Actor\02.Play</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Actor\00.Global\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Horf.h">
+      <Filter>Actor\02.Play\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="Monster.h">
+      <Filter>Actor\02.Play\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="Monstro.h">
+      <Filter>Actor\02.Play\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="PopUpMessage.h" />
+    <ClInclude Include="DyingBlood.h">
+      <Filter>Actor\02.Play</Filter>
+    </ClInclude>
+    <ClInclude Include="Gaper.h">
+      <Filter>Actor\02.Play\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="DamageBlood.h">
+      <Filter>Actor\02.Play</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemInfo.h" />
+    <ClInclude Include="DropItem.h" />
+    <ClInclude Include="BossUI.h">
+      <Filter>Actor\02.Play\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Minimap.h">
+      <Filter>Actor\02.Play\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="MinimapIcon.h">
+      <Filter>Actor\02.Play\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="SlotMachine.h">
+      <Filter>Actor\02.Play\Static</Filter>
+    </ClInclude>
+    <ClInclude Include="SlotMachineCard.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ContentsCore.cpp">
@@ -154,9 +207,6 @@
     </ClCompile>
     <ClCompile Include="LoginUI.cpp">
       <Filter>Actor\01.Login</Filter>
-    </ClCompile>
-    <ClCompile Include="Monster.cpp">
-      <Filter>Actor\02.Play</Filter>
     </ClCompile>
     <ClCompile Include="GlobalContentsValue.cpp" />
     <ClCompile Include="PreCompile.cpp">
@@ -189,9 +239,6 @@
     <ClCompile Include="Bullet.cpp">
       <Filter>Actor\02.Play</Filter>
     </ClCompile>
-    <ClCompile Include="Horf.cpp">
-      <Filter>Actor\02.Play</Filter>
-    </ClCompile>
     <ClCompile Include="PlayMap.cpp">
       <Filter>Actor\02.Play</Filter>
     </ClCompile>
@@ -201,14 +248,12 @@
     <ClCompile Include="BatchDummy.cpp">
       <Filter>Actor\02.Play</Filter>
     </ClCompile>
-    <ClCompile Include="MapManager.cpp" />
     <ClCompile Include="Door.cpp">
       <Filter>Actor\02.Play</Filter>
     </ClCompile>
     <ClCompile Include="Wall.cpp">
       <Filter>Actor\02.Play</Filter>
     </ClCompile>
-    <ClCompile Include="UIManager.cpp" />
     <ClCompile Include="HpInstance.cpp">
       <Filter>Actor\02.Play</Filter>
     </ClCompile>
@@ -230,5 +275,51 @@
     <ClCompile Include="LoadingUI.cpp">
       <Filter>Actor\05.Loading</Filter>
     </ClCompile>
+    <ClCompile Include="MapManager.cpp">
+      <Filter>Actor\98.Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="UIManager.cpp">
+      <Filter>Actor\98.Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="ItemHolder.cpp">
+      <Filter>Actor\02.Play</Filter>
+    </ClCompile>
+    <ClCompile Include="HoldedItem.cpp">
+      <Filter>Actor\02.Play</Filter>
+    </ClCompile>
+    <ClCompile Include="Horf.cpp">
+      <Filter>Actor\02.Play\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="Monster.cpp">
+      <Filter>Actor\02.Play\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="Monstro.cpp">
+      <Filter>Actor\02.Play\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="PopUpMessage.cpp" />
+    <ClCompile Include="DyingBlood.cpp">
+      <Filter>Actor\02.Play</Filter>
+    </ClCompile>
+    <ClCompile Include="Gaper.cpp">
+      <Filter>Actor\02.Play\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="DamageBlood.cpp">
+      <Filter>Actor\02.Play</Filter>
+    </ClCompile>
+    <ClCompile Include="ItemInfo.cpp" />
+    <ClCompile Include="DropItem.cpp" />
+    <ClCompile Include="BossUI.cpp">
+      <Filter>Actor\02.Play\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Minimap.cpp">
+      <Filter>Actor\02.Play\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="MinimapIcon.cpp">
+      <Filter>Actor\02.Play\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="SlotMachine.cpp">
+      <Filter>Actor\02.Play\Static</Filter>
+    </ClCompile>
+    <ClCompile Include="SlotMachineCard.cpp" />
   </ItemGroup>
 </Project>

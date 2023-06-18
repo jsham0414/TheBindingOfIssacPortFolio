@@ -2,15 +2,21 @@
 #include "Bullet.h"
 #include <GameEngineCore/GameEngineDefaultRenderer.h>
 
-Bullet::Bullet() : Speed(350.0f) {
+
+Bullet::Bullet() {
+	Init();
+}
+
+Bullet::~Bullet() {
+}
+
+void Bullet::Init() {
 	Direction = -1;
 	Lean = -0.2f;
 	StartPosition = 0;
 	Distance = 1000;
 	Time = 0.f;
-}
-
-Bullet::~Bullet() {
+	Speed = 350.f;
 }
 
 void Bullet::SetDirection(int _Direction) {
@@ -32,6 +38,8 @@ void Bullet::SetDirection(int _Direction) {
 		break;
 	}
 	SetAngle(NewAngle);
+	
+	StateManager.ChangeState("Idle");
 }
 
 void Bullet::CreateFrameAnimation() {
@@ -42,13 +50,14 @@ void Bullet::CreateFrameAnimation() {
 void Bullet::Start() {
 	Renderer = CreateComponent<GameEngineTextureRenderer>();
 	CreateFrameAnimation();
-	Renderer->ChangeFrameAnimation("Idle");
+	//Renderer->ChangeFrameAnimation("Idle");
+	Renderer->SetTexture("Tears.png", 5);
 	Renderer->ScaleToCutTexture();
 
 	Collision = CreateComponent<GameEngineCollision>();
 	Collision->GetTransform().SetLocalScale(Renderer->GetTransform().GetWorldScale() / 3.f);
 	Collision->ChangeOrder(OBJECTORDER::Projectile);
-	Collision->SetMass(1000.f);
+	Collision->SetMass(100.f);
 
 	StateManager.CreateStateMember("Idle"
 		, std::bind(&Bullet::IdleStateUpdate, this, std::placeholders::_1, std::placeholders::_2)
@@ -70,12 +79,15 @@ bool Bullet::MonsterCollision(GameEngineCollision* _This, GameEngineCollision* _
 	if (_This->GetOrder() == _Other->GetOrder()) {
 		return false;
 	}
+
+	Player* _Player = static_cast<Player*>(_Other->GetActor());
+
 	//TODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODO
 	if (_Other->GetOrder() == (int)OBJECTORDER::Monster) {
 		auto Infos = static_cast<Monster*>(_Other->GetActor());
-		Infos->Damage();
+		float DamageValue = Player::GetMainPlayer()->GetInfo().GetDamage();
+		Infos->Damage(DamageValue);
 	} else if (_Other->GetOrder() == (int)OBJECTORDER::Player) {
-		Player* _Player = static_cast<Player*>(_Other->GetActor());
 		_Player->Assault();
 	}
 
@@ -85,6 +97,8 @@ bool Bullet::MonsterCollision(GameEngineCollision* _This, GameEngineCollision* _
 }
 
 void Bullet::IdleStateStart(const StateInfo& _Info) {
+	Renderer->SetScaleRatio(1.0f);
+
 	float4 Position = GetTransform().GetWorldPosition();
 	StartPos = GetTransform().GetWorldPosition();
 
@@ -106,6 +120,10 @@ void Bullet::IdleStateUpdate(float _DeltaTime, const StateInfo& _Info) {
 
 	GetTransform().SetWorldMove(GetTransform().GetRightVector() * Speed * _DeltaTime);
 
+	Renderer->SetScaleRatio(2.f);
+	Renderer->ChangeFrameAnimation("Idle");
+	Renderer->ScaleToCutTexture();
+
 	if (Velocity <= 0 && Accumulate < -30.f) {
 		StateManager.ChangeState("Dead");
 		return;
@@ -113,11 +131,15 @@ void Bullet::IdleStateUpdate(float _DeltaTime, const StateInfo& _Info) {
 
 	OBJECTORDER Order = static_cast<OBJECTORDER>(GetOrder());
 	Order = Order == OBJECTORDER::Monster ? OBJECTORDER::Player : OBJECTORDER::Monster;
-	Collision->IsCollisionRigidBody(CollisionType::CT_SPHERE, Order, CollisionType::CT_SPHERE,
+	Collision->IsCollisionRigidBody(CollisionType::CT_AABB2D, Order, CollisionType::CT_AABB2D,
 		std::bind(&Bullet::MonsterCollision, this, std::placeholders::_1, std::placeholders::_2)
 	);
 
-	Collision->IsCollisionRigidBody(CollisionType::CT_OBB, OBJECTORDER::AirWall, CollisionType::CT_OBB,
+	Collision->IsCollisionRigidBody(CollisionType::CT_AABB2D, OBJECTORDER::Bomb, CollisionType::CT_AABB2D,
+		std::bind(&Bullet::MonsterCollision, this, std::placeholders::_1, std::placeholders::_2)
+	);
+
+	Collision->IsCollisionRigidBody(CollisionType::CT_OBB2D, OBJECTORDER::AirWall, CollisionType::CT_OBB2D,
 		std::bind(&Bullet::MonsterCollision, this, std::placeholders::_1, std::placeholders::_2)
 	);
 }
@@ -127,9 +149,12 @@ void Bullet::DeathStateStart(const StateInfo& _Info) {
 	Renderer->SetScaleRatio(1.5f);
 	Renderer->ScaleToCutTexture();
 	Renderer->GetTransform().SetLocalRotation(float4(0, 0, rand() % 360));
+	GetTransform().StopPhysics();
 }
 
 void Bullet::DeathStateUpdate(float _DeltaTime, const StateInfo& _Info) {
-	if (Renderer->CurAnimationEnd())
+	if (Renderer->CurAnimationEnd()) {
 		Death();
+		StateManager.ChangeState("Idle");
+	}
 }

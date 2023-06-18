@@ -39,10 +39,27 @@ public:
 		return Lerp(p1, p2, Time);
 	}
 
-	static float EaseOutQuint(float _Time) {
+	static inline float EaseOutQuint(float _Time) {
 		return 1.f - powf(1.f - _Time, 5.f);
 	}
 
+	static inline float EaseInQuint(float _Time) {
+		return _Time * _Time * _Time * _Time * _Time;
+	}
+
+	static float EaseInOutBack(float _Time) {
+		const float c1 = 1.70158f;
+		const float c2 = c1 * 1.525f;
+
+		return _Time < 0.5 ? (powf(2 * _Time, 2) * ((c2 + 1) * 2 * _Time - c2)) / 2 : (powf(2 * _Time - 2, 2) * ((c2 + 1) * (_Time * 2 - 2) + c2) + 2) / 2;
+	}
+
+	static float EaseOutBack(float _Time) {
+		const float c1 = 1.70158f;
+		const float c3 = c1 + 1;
+
+		return 1 + c3 * powf(_Time - 1, 3) + c1 * powf(_Time - 1, 2);
+	}
 
 private:
 	// constrcuter destructer

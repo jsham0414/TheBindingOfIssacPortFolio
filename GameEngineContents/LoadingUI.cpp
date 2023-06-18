@@ -75,10 +75,14 @@ void LoadingUI::LoadingStart(const StateInfo& _Info) {
 	//GEngine::GetLevel("Play")->PreLoading()
 
 	GEngine::ChangeLevel("Play");
-	StateManager.ChangeState("FadeOut");
 }
 
 void LoadingUI::LoadingUpdate(float _DeltaTime, const StateInfo& _Info) {
+	std::string asd = GetLevel()->GetNameConstPtr();
+	if (GetLevel()->CompareName("Play")) {
+		GEngine::GetLevel("Play")->SetPause(true);
+		StateManager.ChangeState("FadeOut");
+	}
 }
 
 void LoadingUI::FadeOutStart(const StateInfo& _Info) {
@@ -92,5 +96,9 @@ void LoadingUI::FadeOutUpdate(float _DeltaTime, const StateInfo& _Info) {
 	float Duration = (GetTickCount64() - StartTime) / 1000.f / FadeTime;
 	Duration = fmin(1.f, Duration);
 	Renderer->GetPixelData().MulColor.a = std::lerp(1.f, 0.f, GameEngineMath::EaseOutQuint(Duration));
-	LoadingImage->GetPixelData().MulColor.a = std::lerp(1.f, 0.f, GameEngineMath::EaseOutQuint(Duration));
+	LoadingImage->GetPixelData().MulColor.a = std::lerp(1.f, 0.f, GameEngineMath::EaseOutQuint(Duration)); 
+
+	if (Duration >= 0.5f && GetLevel()->GetPause()) {
+		GetLevel()->SetPause(false);
+	}
 }

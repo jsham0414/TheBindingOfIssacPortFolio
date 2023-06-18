@@ -34,6 +34,12 @@
     <Filter Include="Enum">
       <UniqueIdentifier>{40c2ed13-cf85-4feb-8fb6-47dd2686b9be}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ObjectPool">
+      <UniqueIdentifier>{acf84c75-2728-4919-8933-9e087301fffc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thread">
+      <UniqueIdentifier>{a0ebfbdb-d606-40af-bc81-fb30118ebe94}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameEngineDebug.cpp">
@@ -84,6 +90,7 @@
     <ClCompile Include="PreCompile.cpp">
       <Filter>PreCompile</Filter>
     </ClCompile>
+    <ClCompile Include="GameEngineThread.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameEngineDebug.h">
@@ -140,6 +147,10 @@
     <ClInclude Include="magic_enum.hpp">
       <Filter>Enum</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngineMemoryPool.h">
+      <Filter>ObjectPool</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngineThread.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="ThirdParty\bin\fmod.dll">

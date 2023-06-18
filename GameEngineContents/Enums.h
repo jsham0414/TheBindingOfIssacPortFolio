@@ -13,6 +13,14 @@ enum class GameObjectGroup {
 	UI,
 };
 
+enum class GameBloodType {
+	TINY,
+	SMALL,
+	MEDIUM,
+	LARGE,
+	HUGE,
+};
+
 enum class GameRoomType {
 	Wall,
 	Room,
@@ -27,5 +35,6 @@ enum class StuffType {
 	Gold,
 	Bomb,
 	Key,
+	Heart,
 	End,
 };

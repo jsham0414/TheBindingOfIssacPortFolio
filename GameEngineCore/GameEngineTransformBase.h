@@ -20,8 +20,7 @@ private:
 	GameEngineTransform Transform;
 
 public:
-	GameEngineTransform& GetTransform()
-	{
+	GameEngineTransform& GetTransform()	{
 		return Transform;
 	}
 

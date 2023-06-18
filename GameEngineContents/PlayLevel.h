@@ -17,12 +17,13 @@ public:
 	PlayLevel& operator=(PlayLevel&& _Other) noexcept = delete;
 
 	bool PreLoading() override;
+	bool LoadTexture() override;
+	bool LoadFont();
 protected:
 	void Start() override;
 	void Update(float _DeltaTime) override;
 	void End() override;
 	void LevelStartEvent() override;
-	bool LoadTexture();
 
 private:
 

@@ -175,6 +175,9 @@
     <ClInclude Include="GameEngineActorInfo.h">
       <Filter>Object\Component</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngineAStar.h">
+      <Filter>Object\Component\AStar</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameEngineActor.cpp">
@@ -338,6 +341,9 @@
     <ClCompile Include="GameEngineActorInfo.cpp">
       <Filter>Object\Component</Filter>
     </ClCompile>
+    <ClCompile Include="GameEngineAStar.cpp">
+      <Filter>Object\Component\AStar</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Object">
@@ -423,6 +429,9 @@
     </Filter>
     <Filter Include="json">
       <UniqueIdentifier>{282d5aad-397b-4c07-ba1a-70d28320a6f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Component\AStar">
+      <UniqueIdentifier>{407ecd2d-dc59-4a2d-a728-59e578b1d3be}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

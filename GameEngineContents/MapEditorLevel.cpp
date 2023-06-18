@@ -8,9 +8,16 @@
 #include "MapEditorWindow.h"
 #include "MapObjectBatcher.h"
 #include "Horf.h"
+#include "ItemHolder.h"
+#include <GameEngineContents/Monstro.h>
+#include <GameEngineContents/Gaper.h>
 
 MapEditorLevel::MapEditorLevel()
 {
+	MapOffset = { -142.f, -87.f };
+	RoomWidth = 13;
+	RoomHeight = 7;
+	TileSize = 52;
 }
 
 MapEditorLevel::~MapEditorLevel()
@@ -56,70 +63,41 @@ void MapEditorLevel::LevelStartEvent() {
 }
 
 void MapEditorLevel::LoadAllObject() {
-	CreateActor<Horf>(OBJECTORDER::TileMapObject);
+	CreateDummy<Horf>();
+	CreateDummy<ItemHolder>();
+	CreateDummy<Monstro>();
+	CreateDummy<Gaper>();
 }
 
 void MapEditorLevel::Update(float _DeltaTime)
 {
 	float4 MousePos = GetMainCamera()->GetMouseScreenPosition();
-	MousePos += {-142.f, -87.f};
-	float fX = (MousePos.x / 52);
-	float fY = (MousePos.y / 52);
+	MousePos += MapOffset;
+	float fX = (MousePos.x / TileSize);
+	float fY = (MousePos.y / TileSize);
 
 	int _X = static_cast<int>(floorf(fX));
 	int _Y = static_cast<int>(floorf(fY));
 
-	int Index = _X + _Y * 13;
+	int Index = _X + _Y * RoomWidth;
 
-	int MaxIndex = 7 * 13;
-
-
-	if (!(0 <= _X && _X < 13))
+	if (!(0 <= _X && _X < RoomWidth))
 		return;
 
-	if (!(0 <= _Y && _Y < 7))
+	if (!(0 <= _Y && _Y < RoomHeight))
 		return;
 
-
-	if (GameEngineInput::GetInst()->IsUp("LeftMouse")) {
+	if (GameEngineInput::GetInst()->IsUp("LeftMouse"))
 		ObjectBatcher->BatchObject(Index, TileMapEditorGUI->BatchInfos[TileMapEditorGUI->Selected]);
-	}
-
-	if (GameEngineInput::GetInst()->IsUp("RightMouse")) {
+	
+	if (GameEngineInput::GetInst()->IsUp("RightMouse"))
 		ObjectBatcher->DeleteObject(Index);
-	}
-
-	// 그림하나 띄우려고 액터 하나 만드는 건 너무나도 귀찮은 일이기 때문에 만들어 봤습니다.
-	//GameEngineDebug::DrawTexture("PivotTile.png", { 0,0,0,1 }, { 0,0,0});
 }
 
 void MapEditorLevel::End()
 {
 }
 
-void MapEditorLevel::LoadTexture() {
-	GameEngineDirectory Dir;
-	Dir.MoveParentToExitsChildDirectory("ContentsResources");
-	Dir.Move("ContentsResources");
-	Dir.Move("Texture");
-	Dir.Move("Play");
-
-	if (nullptr == GameEngineTexture::Find("issac_head.png")) {
-		std::vector<GameEngineFile> Shaders = Dir.GetAllFile();
-
-		for (size_t i = 0; i < Shaders.size(); i++) {
-			GameEngineTexture::Load(Shaders[i].GetFullPath());
-
-			if (Shaders[i].GetFileName() == "issac_head.png")
-				GameEngineTexture::Cut(Shaders[i].GetFileName(), 3, 4);
-			if (Shaders[i].GetFileName() == "issac_body_horizontal.png")
-				GameEngineTexture::Cut(Shaders[i].GetFileName(), 5, 2);
-			if (Shaders[i].GetFileName() == "issac_body_vertical.png")
-				GameEngineTexture::Cut(Shaders[i].GetFileName(), 5, 2);
-			if (Shaders[i].GetFileName() == "Horf.png")
-				GameEngineTexture::Cut(Shaders[i].GetFileName(), 2, 2);
-			if (Shaders[i].GetFileName() == "room_001.png")
-				GameEngineTexture::Cut(Shaders[i].GetFileName(), 2, 2);
-		}
-	}
+bool MapEditorLevel::LoadTexture() {
+	return GEngine::GetLevel("Play")->LoadTexture();
 }

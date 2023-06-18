@@ -29,6 +29,9 @@ GameEngineCamera::~GameEngineCamera()
 
 bool ZSort(GameEngineRenderer* _Left, GameEngineRenderer* _Right)
 {
+	if (_Left->GetTransform().GetWorldPosition().z == _Right->GetTransform().GetWorldPosition().z)
+		return _Left->GetTransform().GetWorldPosition().y > _Right->GetTransform().GetWorldPosition().y;
+
 	return _Left->GetTransform().GetWorldPosition().z > _Right->GetTransform().GetWorldPosition().z;
 }
 
@@ -65,7 +68,9 @@ void GameEngineCamera::Render(float _DeltaTime) {
 		float ScaleTime = GameEngineTime::GetInst()->GetDeltaTime(Group.first);
 
 		std::list<GameEngineRenderer*>& RenderList = Group.second;
+		Mutex.lock();
 		RenderList.sort(ZSort);
+		Mutex.unlock();
 
 		for (GameEngineRenderer* const Renderer : Group.second)
 		{

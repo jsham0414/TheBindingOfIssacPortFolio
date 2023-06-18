@@ -2,53 +2,46 @@
 #include "GameEngineUpdateObject.h"
 #include "GameEngineContents/GlobalContentsValue.h"
 
-GameEngineUpdateObject::GameEngineUpdateObject() 
+GameEngineUpdateObject::GameEngineUpdateObject()
 	: IsUpdate_(true)
-	, IsDeath_(false)
 	, IsReleaseUpdate_(false)
 	, AccTime_(0.0f)
 	, DeathTime_(0.0f)
 	, Order_(0)
-	, Parent(nullptr)
-{
+	, Parent(nullptr) {
+	IsDeath_ = std::make_shared<std::atomic<bool>>(false);
 }
 
-GameEngineUpdateObject::~GameEngineUpdateObject() 
-{
+GameEngineUpdateObject::~GameEngineUpdateObject() {
+	*IsDeath_ = true;
 }
 
-void GameEngineUpdateObject::ReleaseHierarchy()
-{
+void GameEngineUpdateObject::ReleaseHierarchy() {
 	std::list<GameEngineUpdateObject*>::iterator StartIter = Childs.begin();
 	std::list<GameEngineUpdateObject*>::iterator EndIter = Childs.end();
 
-	for (; StartIter != EndIter; ++StartIter)
-	{
+	for (; StartIter != EndIter; ++StartIter) {
 		(*StartIter)->ReleaseHierarchy();
 	}
 
 	delete this;
 }
 
-void GameEngineUpdateObject::SetParent(GameEngineUpdateObject* _Parent) 
-{
+void GameEngineUpdateObject::SetParent(GameEngineUpdateObject* _Parent) {
 	DetachObject();
 
 	Parent = _Parent;
 	Parent->Childs.push_back(this);
 }
 
-void GameEngineUpdateObject::DetachObject()
-{
-	if (nullptr != Parent)
-	{
+void GameEngineUpdateObject::DetachObject() {
+	if (nullptr != Parent) {
 		Parent->Childs.remove(this);
 	}
 }
 
 
-void GameEngineUpdateObject::AllUpdate(float _DeltaTime)
-{
+void GameEngineUpdateObject::AllUpdate(float _DeltaTime) {
 	AddAccTime(_DeltaTime);
 	ReleaseUpdate(_DeltaTime);
 	Update(GameEngineTime::GetInst()->GetTimeScale(GetOrder()) * _DeltaTime);
@@ -66,28 +59,22 @@ void GameEngineUpdateObject::AllUpdate(float _DeltaTime)
 	}
 }
 
-void GameEngineUpdateObject::AllLevelStartEvent()
-{
+void GameEngineUpdateObject::AllLevelStartEvent() {
 	/*this->*/LevelStartEvent();
 
-	for (GameEngineUpdateObject* Com : Childs)
-	{
-		if (false == Com->IsUpdate())
-		{
+	for (GameEngineUpdateObject* Com : Childs) {
+		if (false == Com->IsUpdate()) {
 			continue;
 		}
 
 		Com->AllLevelStartEvent();
 	}
 }
-void GameEngineUpdateObject::AllLevelEndEvent()
-{
+void GameEngineUpdateObject::AllLevelEndEvent() {
 	/*this->*/LevelEndEvent();
 
-	for (GameEngineUpdateObject* Com : Childs)
-	{
-		if (false == Com->IsUpdate())
-		{
+	for (GameEngineUpdateObject* Com : Childs) {
+		if (false == Com->IsUpdate()) {
 			continue;
 		}
 
@@ -95,14 +82,11 @@ void GameEngineUpdateObject::AllLevelEndEvent()
 	}
 }
 
-void GameEngineUpdateObject::AllOnEvent()
-{
+void GameEngineUpdateObject::AllOnEvent() {
 	/*this->*/OnEvent();
 
-	for (GameEngineUpdateObject* Com : Childs)
-	{
-		if (false == Com->IsUpdate())
-		{
+	for (GameEngineUpdateObject* Com : Childs) {
+		if (false == Com->IsUpdate()) {
 			continue;
 		}
 
@@ -110,14 +94,11 @@ void GameEngineUpdateObject::AllOnEvent()
 	}
 }
 
-void GameEngineUpdateObject::AllOffEvent()
-{
+void GameEngineUpdateObject::AllOffEvent() {
 	/*this->*/OffEvent();
 
-	for (GameEngineUpdateObject* Com : Childs)
-	{
-		if (false == Com->IsUpdate())
-		{
+	for (GameEngineUpdateObject* Com : Childs) {
+		if (false == Com->IsUpdate()) {
 			continue;
 		}
 
@@ -126,10 +107,8 @@ void GameEngineUpdateObject::AllOffEvent()
 }
 
 
-void GameEngineUpdateObject::ReleaseObject(std::list<GameEngineUpdateObject*>& _RelaseList)
-{
-	if (true == IsDeath())
-	{
+void GameEngineUpdateObject::ReleaseObject(std::list<GameEngineUpdateObject*>& _RelaseList) {
+	if (true == IsDeath()) {
 		DetachObject();
 		_RelaseList.push_back(this);
 		return;
@@ -138,10 +117,8 @@ void GameEngineUpdateObject::ReleaseObject(std::list<GameEngineUpdateObject*>& _
 	std::list<GameEngineUpdateObject*>::iterator StartIter = Childs.begin();
 	std::list<GameEngineUpdateObject*>::iterator EndIter = Childs.end();
 
-	for ( ; StartIter != EndIter;)
-	{
-		if (true == (*StartIter)->IsDeath())
-		{
+	for (; StartIter != EndIter;) {
+		if (true == (*StartIter)->IsDeath()) {
 			_RelaseList.push_back((*StartIter));
 
 			GameEngineUpdateObject* DeleteObject = (*StartIter);

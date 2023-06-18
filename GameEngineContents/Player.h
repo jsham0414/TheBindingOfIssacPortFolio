@@ -2,6 +2,24 @@
 #include <GameEngineCore/CoreMinimal.h>
 #include "Enums.h"
 
+struct PlayerInfo {
+	PlayerInfo() : BaseAttackSpeed(0.35f), BaseDamage(1.f) {}
+	int HP;
+	int MaxHP;
+	float BonusDamage;
+	float BaseDamage;
+	float AttackSpeed;
+	float BaseAttackSpeed;
+
+	float GetAttackSpeed() {
+		return BaseAttackSpeed - BaseAttackSpeed * (AttackSpeed / 100.f);
+	}
+
+	float GetDamage() {
+		return BaseDamage + BaseDamage * (BonusDamage / 100.f);
+	}
+};
+
 // 설명 :
 class GameEngineCollision;
 class GameEngineTextureRenderer;
@@ -46,11 +64,23 @@ public:
 	void LoseHp(int _Value = 1);
 
 	void Assault(int _Value = 1);
+	void AddStuff(int _Type, int _Value = 1);
 
 	int GetStuff(int _Type) {
 		return Stuffs[_Type];
 	}
 
+	bool GetInvincible() {
+		return Invincible;
+	}
+
+	float Damage;
+
+	void LootItem();
+
+	PlayerInfo& GetInfo() {
+		return Info;
+	}
 protected:
 	void Start() override;
 	void CreateFrameAnimation();
@@ -59,14 +89,15 @@ protected:
 	void Update(float _DeltaTime);
 	void End()  {}
 
-	GameEngineTextureRenderer* HeadRenderer, *BodyRenderer;
 	GameEngineTextureRenderer* HPRenderer;
+
+	PlayerInfo Info;
 
 	float4 Velocity;
 
 	int Hp, MaxHp;
 
-	int Stuffs[(int)StuffType::End];
+	int Stuffs[(int)StuffType::Heart];
 
 	float4 Color;
 
@@ -78,7 +109,11 @@ protected:
 	void IdleStart(const StateInfo& _Info);
 	void IdleUpdate(float _DeltaTime, const StateInfo& _Info);
 
-	void Blinking(DWORD _Duration);
+	void BlinkingThread(ULONGLONG _Duration);
+
+	void LootStart(const StateInfo& _Info);
+	void LootEnd(const StateInfo& _Info);
+	void LootUpdate(float _DeltaTime, const StateInfo& _Info);
 
 	void HitStart(const StateInfo& _Info);
 	void HitEnd(const StateInfo& _Info);
@@ -96,6 +131,8 @@ protected:
 	void MoveUpdate(float _DeltaTime, const StateInfo& _Info);
 	float GetAxis(float _Value);
 private:
+	std::shared_ptr<std::atomic<bool>> IsRunning;
+	std::map<std::string, GameEngineTextureRenderer*> AllRenderer;
 
 	float4 MoveDistance;
 	bool IsAccel;
@@ -110,36 +147,3 @@ private:
 	int HeadDirection;
 	GameEngineFontRenderer* Font;
 };
-
-
-//class 잔상 : public GameEngineActor
-//{
-//	std::vector<GameEngineTextureRenderer*> AllPartsRenderer;
-//
-//public:
-//	void Start() 
-//	{
-//		Death(0.2f);
-//
-//		// 
-//		//HPRenderer->renderOption.Option00 = 1;
-//	}
-//
-//	텍스처세팅(Player* _Player) 
-//	{
-//		for (size_t i = 0; i < _Player->AllPartsRenderer.size(); i++)
-//		{
-//			AllPartsRenderer[i]->SetTexture(_Player->AllPartsRenderer[i]->GetCurTexture());
-//		}
-//	}
-//
-//	업데이트() 
-//	{
-//		for (size_t i = 0; i < _Player->AllPartsRenderer.size(); i++)
-//		{
-//			AllPartsRenderer[i]->GetPixelData().PlusColor.a -= 델타타임;
-//		}
-//
-//		// 점점 
-//	}
-//};

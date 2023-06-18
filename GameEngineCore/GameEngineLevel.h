@@ -1,8 +1,11 @@
 #pragma once
 #include <GameEngineBase/GameEngineNameObject.h>
 #include "GameEngineUpdateObject.h"
+#include <GameEngineBase/GameEngineString.h>
 #include <list>
 #include <map>
+#include <queue>
+#include <unordered_map>
 
 enum class CAMERAORDER
 {
@@ -107,8 +110,7 @@ public:
 	}
 
 	template<typename ActorType>
-	ActorType* CreateActor(int _ObjectGroupIndex = 0)
-	{
+	ActorType* CreateActor(int _ObjectGroupIndex = 0) {
 		GameEngineActor* NewActor = new ActorType();
 		NewActor->SetLevel(this);
 		NewActor->SetOrder(_ObjectGroupIndex);
@@ -116,9 +118,24 @@ public:
 
 		PushActor(NewActor, _ObjectGroupIndex);
 
-		// AllActors[_ObjectGroupIndex]게 사용하면
-		// 없으면 만들어버리고 있으면
-		// 찾아서 리턴해준다.
+		return dynamic_cast<ActorType*>(NewActor);
+	}
+
+
+	template<typename ActorType, typename GroupIndexType>
+	ActorType* CreateDummy(GroupIndexType _ObjectGroupIndex) {
+		return CreateDummy<ActorType>(static_cast<int>(_ObjectGroupIndex));
+	}
+
+	template<typename ActorType>
+	ActorType* CreateDummy(int _ObjectGroupIndex = 4) {
+		GameEngineActor* NewActor = new ActorType();
+		NewActor->SetLevel(this);
+		NewActor->SetOrder(_ObjectGroupIndex);
+		NewActor->Start();
+		NewActor->Off();
+
+		PushActor(NewActor, _ObjectGroupIndex);
 
 		return dynamic_cast<ActorType*>(NewActor);
 	}
@@ -169,9 +186,24 @@ public:
 	const std::list<GameEngineActor*>& GetActors(int _Order) {
 		return AllActors[_Order];
 	}
+
+	bool GetPause() {
+		return Pause;
+	}
+
+	void SetPause(bool _Pause) {
+		Pause = _Pause;
+	}
+
+	bool CompareName(std::string _Name) {
+		return this->GetNameConstPtr() == GameEngineString::ToUpperReturn(_Name);
+	}
+
+	virtual bool LoadTexture() { return true; }
 protected:
 	UIManager* UIManagerInstance;
 	MapManager* MapManagerInstance;
+	bool Pause;
 private:
 	void PushActor(GameEngineActor* _Actor, int _ObjectGroupIndex);
 
@@ -215,12 +247,14 @@ private:
 
 	void PushCollision(GameEngineCollision* _Collision, int _Order);
 
-	void Render(float _DelataTime);
+	void Render(float _DeltaTime);
 
-	void Release(float _DelataTime);
+	void Release(float _DeltaTime);
 
 private:
+
 	std::map<int, std::list<GameEngineActor*>> AllActors;
+	std::unordered_map<std::string, std::queue<GameEngineActor*>> ObjectPools;
 
 	std::list<GameEngineUpdateObject*> DeleteObject;
 

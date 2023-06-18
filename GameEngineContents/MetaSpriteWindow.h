@@ -32,6 +32,7 @@ private:
 
     void MetaFileButton(GameEngineLevel* _Level);
     void AtlasFileButton(GameEngineLevel* _Level);
+    void ImageCutButton(GameEngineLevel* _Level);
 
     //void MetaFileButton();
     //void AtlasFileButton();

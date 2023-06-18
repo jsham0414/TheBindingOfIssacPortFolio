@@ -1,7 +1,7 @@
 #include "PreCompile.h"
 #include "Bomb.h"
 
-Bomb::Bomb() : DelayTime(2500) {
+Bomb::Bomb() : DelayTime(2000) {
 }
 
 Bomb::~Bomb() {
@@ -10,7 +10,9 @@ Bomb::~Bomb() {
 void Bomb::Start() {
 	Renderer = CreateComponent<GameEngineTextureRenderer>();
 	Collision = CreateComponent<GameEngineCollision>();
-	Collision->GetTransform().SetWorldScale({ 10.0f, 10.0f, 50.0f });
+	Collision->ChangeOrder(OBJECTORDER::Bomb);
+	Collision->GetTransform().SetLocalPosition({ 0.f, 20.f });
+	Collision->GetTransform().SetLocalScale({ 30.0f, 30.0f, 30.0f });
 
 	StateManager.CreateStateMember("Idle",
 		std::bind(&Bomb::IdleUpdate, this, std::placeholders::_1, std::placeholders::_2),
@@ -28,19 +30,12 @@ void Bomb::Start() {
 
 	StartTime = GetTickCount64();
 
-	Collision->SetMass(10);
+	Collision->SetMass(3);
 
 	GetTransform().Accel = 0.1f;
 }
 
 void Bomb::Update(float _DeltaTime) {
-	static float4 LastVelocity = { 0.f };
-
-	float4 asd = (LastVelocity * 0.8f + GetTransform().Impulse * 0.2f);
-	GetTransform().SetWorldMove(asd * _DeltaTime);
-
-	Collision->IsCollisionRigidBody(CollisionType::CT_OBB2D, OBJECTORDER::Player, CollisionType::CT_OBB2D);
-
 	StateManager.Update(_DeltaTime);
 }
 
@@ -50,10 +45,8 @@ void Bomb::CreateFrameAnimation() {
 }
 
 void Bomb::BombDelay(DWORD _Time) {
-	Renderer->SetPivotToVector({ 0.f, 0.3f, 0.f, 0.f });
 	std::this_thread::sleep_for(std::chrono::milliseconds(_Time));
 	TerminateThread(DelayThread.native_handle(), NULL);
-	StateManager.ChangeState("Dead");
 }
 
 void Bomb::ColorChange(DWORD _Time) {
@@ -79,14 +72,60 @@ void Bomb::ColorChange(DWORD _Time) {
 }
 
 void Bomb::IdleStart(const StateInfo& _Info) {
+	Collision->SetOrder((int)OBJECTORDER::Bomb);
+	Renderer->SetPivotToVector({ 0.f, 0.3f, 0.f, 0.f });
+
 	LastTime = GetTickCount64();
+	ExplosionTime = GetTickCount64();
 	Index = 0;
 	DelayThread = std::thread(&Bomb::ColorChange, this, DelayTime);
 	DelayThread.detach();
-	std::thread(&Bomb::BombDelay, this, DelayTime).detach();
+	//std::thread(&Bomb::BombDelay, this, DelayTime).detach();
+
+	CollisionTrigger = true;
+	LastVelocity = { 0.f };
+}
+
+bool Bomb::ObjectCollision(GameEngineCollision* _This, GameEngineCollision* _Other) {
+	CollisionTrigger = true;
+	return true;
+}
+
+bool Bomb::DamageCollision(GameEngineCollision* _This, GameEngineCollision* _Other) {
+	if (_Other->GetOrder() == (int)OBJECTORDER::Monster) {
+		auto Infos = static_cast<Monster*>(_Other->GetActor());
+		Infos->Damage(2);
+	} else if (_Other->GetOrder() == (int)OBJECTORDER::Player) {
+		Player* _Player = static_cast<Player*>(_Other->GetActor());
+		_Player->Assault(2);
+	}
+
+	return true;
 }
 
 void Bomb::IdleUpdate(float _DeltaTime, const StateInfo& _Info) {
+	if (ExplosionTime + DelayTime < GetTickCount64()) {
+		StateManager.ChangeState("Dead");
+		return;
+	}
+
+	if (CollisionTrigger != true) {
+		Collision->IsCollisionRigidBody(CollisionType::CT_AABB2D, OBJECTORDER::Player, CollisionType::CT_AABB2D);
+	} else {
+		CollisionTrigger = false;
+		Collision->IsCollision(CollisionType::CT_AABB2D, OBJECTORDER::Player, CollisionType::CT_AABB2D,
+			std::bind(&Bomb::ObjectCollision, this, std::placeholders::_1, std::placeholders::_2)
+		);
+	}
+	Collision->IsCollisionRigidBody(CollisionType::CT_AABB2D, OBJECTORDER::Wall, CollisionType::CT_AABB2D);
+	Collision->IsCollisionRigidBody(CollisionType::CT_SPHERE2D, OBJECTORDER::Bomb, CollisionType::CT_SPHERE2D);
+
+	// 더 잘 밀리게
+	float4 Velocity = (LastVelocity * 0.9f + GetTransform().Accel * 0.9f);
+	GetTransform().SetWorldMove(Velocity * _DeltaTime);
+
+	LastVelocity = Velocity;
+
 	float4 Pump[4] = { {1.f, 1.f}, {0.9f, 1.1f}, {1.f, 1.f}, {1.2f, 0.8f} };
 	if (LastTime < GetTickCount64()) {
 		DWORD CurTime = StartTime + DelayTime - GetTickCount64();
@@ -94,22 +133,29 @@ void Bomb::IdleUpdate(float _DeltaTime, const StateInfo& _Info) {
 		float Wait = 100;
 		if (CurTime < 1500) {
 			GetTransform().SetLocalScale(Pump[Index++ % _countof(Pump)]);
-			Wait *= 0.5f;
+			Wait *= 0.25f;
 		}
-		if (CurTime < 300) Wait *= 0.25f;
+		if (CurTime < 300) Wait *= 0.5f;
 		LastTime = GetTickCount64() + Wait;
 	}
-
 }
 
 void Bomb::DeadStart(const StateInfo& _Info) {
 	GetTransform().StopPhysics();
-	Collision->Off();
 	Renderer->GetPixelData().MulColor = float4::WHITE;
 	Renderer->GetTransform().SetLocalPosition({ 0.f, 15.f });
 	GetTransform().SetLocalScale({ 1.f, 1.f });
 	Renderer->ChangeFrameAnimation("Explosion");
 	Renderer->ScaleToCutTexture();
+
+	Collision->GetTransform().SetLocalScale({ 150.f, 150.f, 1.f });
+
+	Collision->IsCollision(CollisionType::CT_AABB2D, OBJECTORDER::Player, CollisionType::CT_AABB2D,
+		std::bind(&Bomb::DamageCollision, this, std::placeholders::_1, std::placeholders::_2)
+	);
+	Collision->IsCollision(CollisionType::CT_AABB2D, OBJECTORDER::Monster, CollisionType::CT_AABB2D,
+		std::bind(&Bomb::DamageCollision, this, std::placeholders::_1, std::placeholders::_2)
+	);
 }
 
 void Bomb::DeadUpdate(float _DeltaTime, const StateInfo& _Info) {

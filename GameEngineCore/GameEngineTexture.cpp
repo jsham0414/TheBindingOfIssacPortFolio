@@ -214,8 +214,7 @@ void GameEngineTexture::Cut(UINT _StartX, UINT _StartY, UINT _SizeX, UINT _SizeY
 
 }
 
-void GameEngineTexture::Cut(UINT _X, UINT _Y)
-{
+void GameEngineTexture::Cut(UINT _X, UINT _Y) {
 	CutData.clear();
 
 	float SizeX = 1.0f / _X;
@@ -223,11 +222,8 @@ void GameEngineTexture::Cut(UINT _X, UINT _Y)
 
 	float4 Start = float4::ZERO;
 
-	for (size_t y = 0; y < _Y; y++)
-	{
-		for (size_t x = 0; x < _X; x++)
-		{
-
+	for (size_t y = 0; y < _Y; y++) {
+		for (size_t x = 0; x < _X; x++) {
 			float4 FrameData;
 
 			FrameData.PosX = Start.x;

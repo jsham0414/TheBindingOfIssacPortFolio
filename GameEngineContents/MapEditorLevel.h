@@ -19,18 +19,21 @@ public:
 
 	TileMapActor* TileMap;
 
+	bool LoadTexture() override;
 protected:
 	void Start() override;
 	void LevelStartEvent() override;
 	void LoadAllObject();
 	void Update(float _DeltaTime) override;
 	void End() override;
-
-	void LoadTexture();
 private:
 	vector<GameEngineActor> Actors;
 	MapObjectBatcher* ObjectBatcher;
 	MapEditorWindow* TileMapEditorGUI;
+	float4 MapOffset;
+	int RoomWidth;
+	int RoomHeight;
+	int TileSize;
 
 	//void OnEvent() override;
 

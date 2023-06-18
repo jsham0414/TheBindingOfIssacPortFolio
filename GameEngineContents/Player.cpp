@@ -8,16 +8,21 @@
 #include <GameEngineCore/GameEngineTextureRenderer.cpp>
 #include "UIManager.h"
 #include "Bomb.h"
+#include "GameEngineBase/GameEngineThread.h"
 
 Player* Player::MainPlayer = nullptr;
 
 Player::Player()
 	: Speed(330.0f) {
 	SetName("Player");
+	IsRunning = make_shared<atomic<bool>>(true);
+
 	Velocity = { 0.f };
 	MainPlayer = this;
-	MaxHp = 6;
-	Hp = MaxHp;
+	Info.MaxHP = 6;
+	Info.HP = Info.MaxHP;
+	Info.BaseDamage = 1.f;
+	Info.AttackSpeed = 0.f;
 
 	for (int i = 0; i < _countof(Stuffs); i++) {
 		Stuffs[i] = 0;
@@ -25,6 +30,7 @@ Player::Player()
 }
 
 Player::~Player() {
+	*IsRunning = false;
 }
 
 void Player::KeyBinding() {
@@ -45,34 +51,36 @@ void Player::KeyBinding() {
 }
 
 void Player::CreateFrameAnimation() {
-	HeadRenderer->CreateFrameAnimationCutTexture("Idle_Down", FrameAnimation_DESC("issac_head.png", 0, 0, 0.1f));
-	HeadRenderer->CreateFrameAnimationCutTexture("Idle_Left", FrameAnimation_DESC("issac_head.png", 3, 3, 0.1f));
-	HeadRenderer->CreateFrameAnimationCutTexture("Idle_Up", FrameAnimation_DESC("issac_head.png", 9, 9, 0.1f));
-	HeadRenderer->CreateFrameAnimationCutTexture("Idle_Right", FrameAnimation_DESC("issac_head.png", 6, 6, 0.1f));
+	AllRenderer["Head"]->CreateFrameAnimationCutTexture("Idle_Down", FrameAnimation_DESC("issac_head.png", 0, 0, 0.1f));
+	AllRenderer["Head"]->CreateFrameAnimationCutTexture("Idle_Left", FrameAnimation_DESC("issac_head.png", 3, 3, 0.1f));
+	AllRenderer["Head"]->CreateFrameAnimationCutTexture("Idle_Up", FrameAnimation_DESC("issac_head.png", 9, 9, 0.1f));
+	AllRenderer["Head"]->CreateFrameAnimationCutTexture("Idle_Right", FrameAnimation_DESC("issac_head.png", 6, 6, 0.1f));
 
-	HeadRenderer->CreateFrameAnimationCutTexture("Move_Down", FrameAnimation_DESC("issac_head.png", 0, 0, 0.1f));
-	HeadRenderer->CreateFrameAnimationCutTexture("Move_Left", FrameAnimation_DESC("issac_head.png", 3, 3, 0.1f));
-	HeadRenderer->CreateFrameAnimationCutTexture("Move_Up", FrameAnimation_DESC("issac_head.png", 9, 9, 0.1f));
-	HeadRenderer->CreateFrameAnimationCutTexture("Move_Right", FrameAnimation_DESC("issac_head.png", 6, 6, 0.1f));
+	AllRenderer["Head"]->CreateFrameAnimationCutTexture("Move_Down", FrameAnimation_DESC("issac_head.png", 0, 0, 0.1f));
+	AllRenderer["Head"]->CreateFrameAnimationCutTexture("Move_Left", FrameAnimation_DESC("issac_head.png", 3, 3, 0.1f));
+	AllRenderer["Head"]->CreateFrameAnimationCutTexture("Move_Up", FrameAnimation_DESC("issac_head.png", 9, 9, 0.1f));
+	AllRenderer["Head"]->CreateFrameAnimationCutTexture("Move_Right", FrameAnimation_DESC("issac_head.png", 6, 6, 0.1f));
 
-	HeadRenderer->CreateFrameAnimationCutTexture("Attack_Down", FrameAnimation_DESC("issac_head.png", 0, 2, 0.1f, false));
-	HeadRenderer->CreateFrameAnimationCutTexture("Attack_Left", FrameAnimation_DESC("issac_head.png", 3, 5, 0.1f, false));
-	HeadRenderer->CreateFrameAnimationCutTexture("Attack_Up", FrameAnimation_DESC("issac_head.png", 9, 11, 0.1f, false));
-	HeadRenderer->CreateFrameAnimationCutTexture("Attack_Right", FrameAnimation_DESC("issac_head.png", 6, 8, 0.1f, false));
+	AllRenderer["Head"]->CreateFrameAnimationCutTexture("Attack_Down", FrameAnimation_DESC("issac_head.png", 0, 2, 0.1f, false));
+	AllRenderer["Head"]->CreateFrameAnimationCutTexture("Attack_Left", FrameAnimation_DESC("issac_head.png", 3, 5, 0.1f, false));
+	AllRenderer["Head"]->CreateFrameAnimationCutTexture("Attack_Up", FrameAnimation_DESC("issac_head.png", 9, 11, 0.1f, false));
+	AllRenderer["Head"]->CreateFrameAnimationCutTexture("Attack_Right", FrameAnimation_DESC("issac_head.png", 6, 8, 0.1f, false));
 
-	BodyRenderer->CreateFrameAnimationCutTexture("Issac_Body_Idle_Down", FrameAnimation_DESC("issac_body_vertical.png", 2, 2, 0.1f, false));
+	AllRenderer["Body"]->CreateFrameAnimationCutTexture("Issac_Body_Idle_Down", FrameAnimation_DESC("issac_body_vertical.png", 2, 2, 0.1f, false));
 
-	BodyRenderer->CreateFrameAnimationCutTexture("Issac_Body_Walk_Down", FrameAnimation_DESC("issac_body_vertical.png", 0, 9, 0.1f));
-	BodyRenderer->CreateFrameAnimationCutTexture("Issac_Body_Walk_Up", FrameAnimation_DESC("issac_body_vertical.png", 9, 0, 0.1f));
-	BodyRenderer->CreateFrameAnimationCutTexture("Issac_Body_Walk_Left", FrameAnimation_DESC("issac_body_horizontal.png", 0, 7, 0.1f));
-	BodyRenderer->CreateFrameAnimationCutTexture("Issac_Body_Walk_Right", FrameAnimation_DESC("issac_body_horizontal.png", 8, 15, 0.1f));
+	AllRenderer["Body"]->CreateFrameAnimationCutTexture("Issac_Body_Walk_Down", FrameAnimation_DESC("issac_body_vertical.png", 0, 9, 0.1f));
+	AllRenderer["Body"]->CreateFrameAnimationCutTexture("Issac_Body_Walk_Up", FrameAnimation_DESC("issac_body_vertical.png", 9, 0, 0.1f));
+	AllRenderer["Body"]->CreateFrameAnimationCutTexture("Issac_Body_Walk_Left", FrameAnimation_DESC("issac_body_horizontal.png", 0, 7, 0.1f));
+	AllRenderer["Body"]->CreateFrameAnimationCutTexture("Issac_Body_Walk_Right", FrameAnimation_DESC("issac_body_horizontal.png", 8, 15, 0.1f));
 
-	BodyRenderer->CreateFrameAnimationCutTexture("Issac_Hit", FrameAnimation_DESC("Issac_hit2.png", 0, 0, 0.3f));
+	AllRenderer["Body"]->CreateFrameAnimationCutTexture("Issac_Hit", FrameAnimation_DESC("Issac_hit2.png", 0, 0, 0.3f));
+	AllRenderer["Body"]->CreateFrameAnimationCutTexture("Issac_Loot", FrameAnimation_DESC("Issac_Loot.png", 0, 0, 1.f));
+
 }
 
 void Player::LoseHp(int _Value) {
-	Hp -= _Value;
-	GetLevel()->GetUIManager()->SetHp(Hp);
+	Info.HP -= _Value;
+	GetLevel()->GetUIManager()->SetHp(Info.HP);
 }
 
 void Player::Assault(int _Value) {
@@ -83,26 +91,44 @@ void Player::Assault(int _Value) {
 	StateManager.ChangeState("Hit");
 }
 
-void Player::Start() {
-	HeadRenderer = CreateComponent<GameEngineTextureRenderer>();
-	HeadRenderer->GetTransform().SetLocalPosition({ 0.0f, 20.f, 10.0f });
-	HeadRenderer->SetScaleMode(SCALEMODE::IMAGE);
+void Player::AddStuff(int _Type, int _Value) {
+	Stuffs[_Type] += _Value;
+	GetLevel()->GetUIManager()->SetStuff(_Type, _Value);
+}
 
-	BodyRenderer = CreateComponent<GameEngineTextureRenderer>();
-	BodyRenderer->GetTransform().SetLocalPosition({ 0.0f, 0.0f, 11.0f });
+void Player::LootItem() {
+	if (Invincible)
+		return;
+
+	StateManager.ChangeState("Loot");
+}
+
+void Player::Start() {
+	AllRenderer["Head"] = CreateComponent<GameEngineTextureRenderer>();
+	AllRenderer["Head"]->GetTransform().SetLocalPosition({ 0.0f, 20.f, 10.0f });
+
+	AllRenderer["Body"] = CreateComponent<GameEngineTextureRenderer>();
+	AllRenderer["Body"]->GetTransform().SetLocalPosition({ 0.0f, 0.0f, 10.0f });
+
+	auto Shadow = CreateComponent<GameEngineTextureRenderer>();
+	Shadow->GetTransform().SetLocalPosition({ 0.0f, -14.0f, 11.0f });
+	Shadow->SetTexture("shadow.png");
+	Shadow->GetPixelData().MulColor.a = 0.2f;
+	Shadow->SetScaleRatio(0.35f);
+	Shadow->ScaleToTexture();
 
 	KeyBinding();
 	CreateFrameAnimation();
 
-	HeadRenderer->ChangeFrameAnimation("Idle_Down");
-	BodyRenderer->ChangeFrameAnimation("Issac_Body_Idle_Down");
+	AllRenderer["Head"]->ChangeFrameAnimation("Idle_Down");
+	AllRenderer["Body"]->ChangeFrameAnimation("Issac_Body_Idle_Down");
 
-	HeadRenderer->ScaleToCutTexture();
-	BodyRenderer->ScaleToCutTexture();
+	AllRenderer["Head"]->ScaleToCutTexture();
+	AllRenderer["Body"]->ScaleToCutTexture();
 
 	Collision = CreateComponent<GameEngineCollision>();
 	Collision->GetTransform().SetLocalPosition({ 0, -10, 0 });
-	Collision->GetTransform().SetWorldScale({ 30.0f, 30.0f, 50.0f });
+	Collision->GetTransform().SetWorldScale({ 30.0f, 30.0f });
 	Collision->ChangeOrder(OBJECTORDER::Player);
 	float4 Color = float4::RED;
 	Color.a = 0.2f;
@@ -115,15 +141,6 @@ void Player::Start() {
 	Font->SetSize(20);
 	Font->SetScreenPostion({ 0, 0 });
 	Font->ChangeCamera(CAMERAORDER::UICAMERA);
-
-
-	// Collision->Collision();
-
-	// 무기명 함수를 만들수 있습니다.
-	// 이름없는 인스턴스 함수를 만들수가 있습니다.
-	// [](const StateInfo& _Info) 
-	//{
-	//} 람다를 만들겠다 
 
 	AttackManager.CreateStateMember("Idle"
 		, std::bind(&Player::HeadIdleUpdate, this, std::placeholders::_1, std::placeholders::_2)
@@ -147,14 +164,20 @@ void Player::Start() {
 		std::bind(&Player::HitEnd, this, std::placeholders::_1)
 	);
 
+	StateManager.CreateStateMember("Loot",
+		std::bind(&Player::LootUpdate, this, std::placeholders::_1, std::placeholders::_2),
+		std::bind(&Player::LootStart, this, std::placeholders::_1),
+		std::bind(&Player::LootEnd, this, std::placeholders::_1)
+	);
+
 	StateManager.CreateStateMember("Move"
 		, std::bind(&Player::MoveUpdate, this, std::placeholders::_1, std::placeholders::_2)
 		, nullptr);
 	StateManager.ChangeState("Idle");
 
 	GetTransform().Axis = { 0.f };
-	GetTransform().Slope = 3.8f;
-	Accel = 3.4f;
+	GetTransform().Slope = 3.f;
+	Accel = 3.8f;
 }
 
 void Player::IdleStart(const StateInfo& _Info) {
@@ -182,51 +205,80 @@ void Player::IdleUpdate(float _DeltaTime, const StateInfo& _Info) {
 	}
 
 	if (GetVertical() == 0.f && GetHorizontal() == 0.f) {
-		BodyRenderer->ChangeFrameAnimation("Issac_Body_Idle_Down");
+		AllRenderer["Body"]->ChangeFrameAnimation("Issac_Body_Idle_Down");
 	}
 }
 
-void Player::Blinking(DWORD _Duration) {
-	DWORD _CurTime = GetTickCount64();
+void Player::BlinkingThread(ULONGLONG _Duration) {
+	float Alpha = 0.f;
+
+	ULONGLONG _CurTime = GetTickCount64();
 	while (_CurTime + _Duration > GetTickCount64()) {
 		Mutex.lock();
-		HeadRenderer->GetPixelData().MulColor.a = 0.f;
-		BodyRenderer->GetPixelData().MulColor.a = 0.f;
+		AllRenderer["Head"]->GetPixelData().MulColor.a = Alpha;
+		AllRenderer["Body"]->GetPixelData().MulColor.a = Alpha;
 		Mutex.unlock();
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
-		Mutex.lock();
-		HeadRenderer->GetPixelData().MulColor.a = 1.f;
-		BodyRenderer->GetPixelData().MulColor.a = 1.f;
-		Mutex.unlock();
+
+		Alpha = (float)!Alpha;
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
+
 	Mutex.lock();
+	AllRenderer["Head"]->GetPixelData().MulColor.a = 1.f;
+	AllRenderer["Body"]->GetPixelData().MulColor.a = 1.f;
 	Invincible = false;
 	Mutex.unlock();
-	// TODO : 수평으로 이동하다가 수직 이동 시 가속 붙게 수정
+}
+
+void Player::LootStart(const StateInfo& _Info) {
+	AllRenderer["Head"]->Off();
+	AllRenderer["Body"]->SetScaleRatio(2.f);
+	AllRenderer["Body"]->GetTransform().SetLocalPosition({ 0.f, 12.f, 10.f });
+	AllRenderer["Body"]->ChangeFrameAnimation("Issac_Loot");
+	AllRenderer["Body"]->ScaleToCutTexture();
+
+	Invincible = true;
+}
+
+void Player::LootEnd(const StateInfo& _Info) {
+	AllRenderer["Head"]->On();
+	AllRenderer["Body"]->SetScaleRatio(2.0f);
+	AllRenderer["Body"]->GetTransform().SetLocalPosition({ 0.f, 0.f, 10.f });
+	AllRenderer["Body"]->ChangeFrameAnimation("Issac_Body_Idle_Down");
+	AllRenderer["Body"]->ScaleToCutTexture();
+	Invincible = false;
+}
+
+void Player::LootUpdate(float _DeltaTime, const StateInfo& _Info) {
+	if (AllRenderer["Body"]->CurAnimationEnd()) {
+		StateManager.ChangeState("Idle");
+	}
 }
 
 void Player::HitStart(const StateInfo& _Info) {
-	HeadRenderer->Off();
-	BodyRenderer->SetScaleRatio(2.f);
-	BodyRenderer->GetTransform().SetLocalPosition({ 0.f, 12.f, 11.f });
-	BodyRenderer->ChangeFrameAnimation("Issac_Hit");
-	BodyRenderer->ScaleToCutTexture();
+	AllRenderer["Head"]->Off();
+	AllRenderer["Body"]->SetScaleRatio(2.f);
+	AllRenderer["Body"]->GetTransform().SetLocalPosition({ 0.f, 12.f, 10.f });
+	AllRenderer["Body"]->ChangeFrameAnimation("Issac_Hit");
+	AllRenderer["Body"]->ScaleToCutTexture();
 
 	Invincible = true;
-	thread(&Player::Blinking, this, 1000).detach();
+
+	auto t = GameEngineThread(&Player::BlinkingThread, this, 1000);
+	t.detach();
+	
 }
 
 void Player::HitEnd(const StateInfo& _Info) {
-	HeadRenderer->On();
-	BodyRenderer->SetScaleRatio(2.0f);
-	BodyRenderer->GetTransform().SetLocalPosition({ 0.f, 0.f, 11.f });
-	BodyRenderer->ChangeFrameAnimation("Issac_Body_Idle_Down");
-	BodyRenderer->ScaleToCutTexture();
+	AllRenderer["Head"]->On();
+	AllRenderer["Body"]->SetScaleRatio(2.0f);
+	AllRenderer["Body"]->GetTransform().SetLocalPosition({ 0.f, 0.f, 10.f });
+	AllRenderer["Body"]->ChangeFrameAnimation("Issac_Body_Idle_Down");
+	AllRenderer["Body"]->ScaleToCutTexture();
 }
 
 void Player::HitUpdate(float _DeltaTime, const StateInfo& _Info) {
-	if (BodyRenderer->CurAnimationEnd()) {
+	if (AllRenderer["Body"]->CurAnimationEnd()) {
 		StateManager.ChangeState("Idle");
 	}
 }
@@ -234,13 +286,13 @@ void Player::HitUpdate(float _DeltaTime, const StateInfo& _Info) {
 void Player::HeadAttackStart(const StateInfo& _Info) {
 	// 방향키 따라 변경
 	if (GameEngineInput::GetInst()->IsPress("PlayerDown")) {
-		HeadRenderer->ChangeFrameAnimation("Move_Down");
+		AllRenderer["Head"]->ChangeFrameAnimation("Move_Down");
 	} else if (GameEngineInput::GetInst()->IsPress("PlayerUp")) {
-		HeadRenderer->ChangeFrameAnimation("Move_Up");
+		AllRenderer["Head"]->ChangeFrameAnimation("Move_Up");
 	} else if (GameEngineInput::GetInst()->IsPress("PlayerRight")) {
-		HeadRenderer->ChangeFrameAnimation("Move_Right");
+		AllRenderer["Head"]->ChangeFrameAnimation("Move_Right");
 	} else if (GameEngineInput::GetInst()->IsPress("PlayerLeft")) {
-		HeadRenderer->ChangeFrameAnimation("Move_Left");
+		AllRenderer["Head"]->ChangeFrameAnimation("Move_Left");
 	}
 }
 
@@ -252,7 +304,7 @@ void Player::HeadIdleStart(const StateInfo& _Info) {
 		//Renderer->CurAnimationReset();
 		return;
 	}
-	HeadRenderer->ChangeFrameAnimation("Idle_Down");
+	AllRenderer["Head"]->ChangeFrameAnimation("Idle_Down");
 }
 
 void Player::HeadAttackUpdate(float _DeltaTime, const StateInfo& _Info) {
@@ -263,7 +315,7 @@ void Player::HeadAttackUpdate(float _DeltaTime, const StateInfo& _Info) {
 	if (!(GameEngineInput::GetInst()->IsPress("AttackLeft") ||
 		GameEngineInput::GetInst()->IsPress("AttackRight") ||
 		GameEngineInput::GetInst()->IsPress("AttackUp") ||
-		GameEngineInput::GetInst()->IsPress("AttackDown")) && HeadRenderer->CurAnimationEnd()) {
+		GameEngineInput::GetInst()->IsPress("AttackDown")) && AllRenderer["Head"]->CurAnimationEnd()) {
 		AttackManager.ChangeState("Idle");
 		return;
 	}
@@ -276,8 +328,10 @@ void Player::HeadAttackUpdate(float _DeltaTime, const StateInfo& _Info) {
 			return;
 		}
 
-		LastTime = GetTickCount64() + Delay;
+		float asd = Info.GetAttackSpeed() * 1000.f;
+		LastTime = GetTickCount64() + asd;
 		Bullet* NewBullet = GetLevel()->CreateActor<Bullet>(GetOrder());
+		NewBullet->Init();
 
 		float NewAngle = 0;
 		float _PlusAngle = 10.f; // 1당 휘어질 각도
@@ -313,23 +367,23 @@ void Player::HeadAttackUpdate(float _DeltaTime, const StateInfo& _Info) {
 		if (HeadDirection == 4 || HeadDirection == 6)
 			_NewPos.y += (rand() % 20);
 		if (HeadDirection == 2 || HeadDirection == 8)
-			_NewPos.x += -10.f + (rand() % 20);
+			_NewPos.x += -15.f + (rand() % 30);
 
 		NewBullet->GetTransform().SetLocalPosition(_NewPos);
 		NewBullet->StateManager.ChangeState("Idle");
 
 		switch (HeadDirection) {
 		case 2:
-			HeadRenderer->ChangeFrameAnimation("Attack_Down", FORCE | RESTART);
+			AllRenderer["Head"]->ChangeFrameAnimation("Attack_Down", FORCE | RESTART);
 			break;
 		case 4:
-			HeadRenderer->ChangeFrameAnimation("Attack_Left", FORCE | RESTART);
+			AllRenderer["Head"]->ChangeFrameAnimation("Attack_Left", FORCE | RESTART);
 			break;
 		case 6:
-			HeadRenderer->ChangeFrameAnimation("Attack_Right", FORCE | RESTART);
+			AllRenderer["Head"]->ChangeFrameAnimation("Attack_Right", FORCE | RESTART);
 			break;
 		case 8:
-			HeadRenderer->ChangeFrameAnimation("Attack_Up", FORCE | RESTART);
+			AllRenderer["Head"]->ChangeFrameAnimation("Attack_Up", FORCE | RESTART);
 			break;
 		}
 		return;
@@ -348,15 +402,15 @@ void Player::HeadIdleUpdate(float _DeltaTime, const StateInfo& _Info) {
 	}
 
 	if (GameEngineInput::GetInst()->IsPress("PlayerDown")) {
-		HeadRenderer->ChangeFrameAnimation("Move_Down");
+		AllRenderer["Head"]->ChangeFrameAnimation("Move_Down");
 	} else if (GameEngineInput::GetInst()->IsPress("PlayerUp")) {
-		HeadRenderer->ChangeFrameAnimation("Move_Up");
+		AllRenderer["Head"]->ChangeFrameAnimation("Move_Up");
 	} else if (GameEngineInput::GetInst()->IsPress("PlayerRight")) {
-		HeadRenderer->ChangeFrameAnimation("Move_Right");
+		AllRenderer["Head"]->ChangeFrameAnimation("Move_Right");
 	} else if (GameEngineInput::GetInst()->IsPress("PlayerLeft")) {
-		HeadRenderer->ChangeFrameAnimation("Move_Left");
+		AllRenderer["Head"]->ChangeFrameAnimation("Move_Left");
 	} else {
-		HeadRenderer->ChangeFrameAnimation("Idle_Down");
+		AllRenderer["Head"]->ChangeFrameAnimation("Idle_Down");
 	}
 
 }
@@ -376,13 +430,13 @@ void Player::MoveUpdate(float _DeltaTime, const StateInfo& _Info) {
 	}
 
 	if (GameEngineInput::GetInst()->IsPress("PlayerDown")) {
-		BodyRenderer->ChangeFrameAnimation("Issac_Body_Walk_Down");
+		AllRenderer["Body"]->ChangeFrameAnimation("Issac_Body_Walk_Down");
 	} else if (GameEngineInput::GetInst()->IsPress("PlayerUp")) {
-		BodyRenderer->ChangeFrameAnimation("Issac_Body_Walk_Up");
+		AllRenderer["Body"]->ChangeFrameAnimation("Issac_Body_Walk_Up");
 	} else if (GameEngineInput::GetInst()->IsPress("PlayerRight")) {
-		BodyRenderer->ChangeFrameAnimation("Issac_Body_Walk_Right");
+		AllRenderer["Body"]->ChangeFrameAnimation("Issac_Body_Walk_Right");
 	} else if (GameEngineInput::GetInst()->IsPress("PlayerLeft")) {
-		BodyRenderer->ChangeFrameAnimation("Issac_Body_Walk_Left");
+		AllRenderer["Body"]->ChangeFrameAnimation("Issac_Body_Walk_Left");
 	}
 }
 
@@ -404,7 +458,6 @@ void Player::PlayerSetPosition(float4 _NewPos) {
 
 void Player::Update(float _DeltaTime) {
 	static float4 CurrentVelocity = { 0.f };
-
 
 	if (!(GameEngineInput::GetInst()->IsPress("PlayerLeft") || GameEngineInput::GetInst()->IsPress("PlayerRight")) && (GetTransform().Axis.x != 0.f)) {
 		Decel = (GetTransform().Axis.x / fabs(GetTransform().Axis.x)) * (GetTransform().Slope) * _DeltaTime;
@@ -428,6 +481,7 @@ void Player::Update(float _DeltaTime) {
 	GetTransform().Axis.x = fmaxf(GetTransform().Axis.x, -1.f);
 	GetTransform().Axis.y = fmaxf(GetTransform().Axis.y, -1.f);
 
+	Collision->IsCollisionRigidBody(CollisionType::CT_OBB2D, OBJECTORDER::Monster, CollisionType::CT_OBB2D);
 
 	float4 _NewForce = { 0.f };
 
@@ -457,10 +511,13 @@ void Player::Update(float _DeltaTime) {
 	if (true == GetLevel()->GetMainCameraActor()->IsFreeCameraMode())
 		return;
 
-	float4 qasd = GetTransform().GetWorldPosition();
-	qasd.y -= 10.f;
-	if (GameEngineInput::GetInst()->IsDown("PlayerBomb"))
-		GetLevel()->CreateActor<Bomb>()->GetTransform().SetWorldPosition(qasd);
+	if (GameEngineInput::GetInst()->IsDown("PlayerBomb")) {
+		Bomb* NewBomb = GetLevel()->CreateActor<Bomb>();
+		float4 Fixed = GetTransform().GetWorldPosition();
+		Fixed.y -= 16.f;
+		Fixed.z += 100.f;
+		NewBomb->GetTransform().SetWorldPosition(Fixed);
+	}
 
 	if (GameEngineInput::GetInst()->IsPress("AttackUp")) {
 		HeadDirection = 8;

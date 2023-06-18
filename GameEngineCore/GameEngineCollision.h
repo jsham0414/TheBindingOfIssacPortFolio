@@ -22,6 +22,7 @@ public:
 	GameEngineCollision& operator=(const GameEngineCollision& _Other) = delete;
 	GameEngineCollision& operator=(GameEngineCollision&& _Other) noexcept = delete;
 
+	// Collision Data를 Level에 전달해줘야 하기 때문에 GameEngineCollision은 SetOrder를 쓰지 않는다
 	template<typename EnumType>
 	void ChangeOrder(EnumType _Order)
 	{

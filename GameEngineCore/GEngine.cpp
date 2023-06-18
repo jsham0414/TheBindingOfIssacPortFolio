@@ -39,7 +39,7 @@ GameEngineLevel* GEngine::GetCurrentLevel()
 }
 
 GameEngineLevel* GEngine::GetLevel(std::string _Name) {
-	return GameEngineCore::AllLevels[_Name];
+	return GameEngineCore::FindLevel(_Name);
 }
 
 void GEngine::ChangeLevel(std::string _Name)

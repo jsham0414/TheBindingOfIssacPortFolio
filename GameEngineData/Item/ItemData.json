@@ -1,0 +1,20 @@
+{
+   "0" : {
+      "Icon" : "collectibles_007_bloodofthemartyr.png",
+      "Costume" : "costume_017_bloodofthemartyr.png",
+      "Name" : "Blood of the Martyr",
+      "Description" : "DMG up!"
+   },
+   "1" : {
+      "Icon" : "collectibles_024_dessert.png",
+      "Costume" : "",
+      "Name" : "Dessert",
+      "Description" : "HP Up"
+   },
+   "2" : {
+      "Icon" : "collectibles_001_thesadonion.png",
+      "Costume" : "",
+      "Name" : "The Sad Onion",
+      "Description" : "Tears up"
+   }
+}

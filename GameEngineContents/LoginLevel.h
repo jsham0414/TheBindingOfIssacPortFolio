@@ -15,6 +15,7 @@ public:
 	LoginLevel& operator=(const LoginLevel& _Other) = delete;
 	LoginLevel& operator=(LoginLevel&& _Other) noexcept = delete;
 
+	bool LoadTexture() override { return true; }
 protected:
 	void Start() override;
 	void Update(float _DeltaTime) override;

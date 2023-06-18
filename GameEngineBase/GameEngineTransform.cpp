@@ -5,8 +5,9 @@ GameEngineTransform::GameEngineTransform()
 	: Parent(nullptr)
 	, CollisionDataObject()
 {
-	Mass = 1.f;
+	Mass = 10.f;
 	Axis = { 0.f, 0.f };
+	Power = 1.f;
 	CollisionDataSetting();
 }
 

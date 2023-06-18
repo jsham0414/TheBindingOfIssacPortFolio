@@ -9,8 +9,9 @@ Wall::~Wall() {
 }
 
 void Wall::Start() {
-	//Renderer = CreateComponent<GameEngineTextureRenderer>();
-	Collision = CreateComponent<GameEngineCollision>(GetOrder());
+	Collision = CreateComponent<GameEngineCollision>();
+	// AirWall 때문에 Order를 Parent에 따라 쓴다
+	Collision->ChangeOrder(GetOrder());
 	float4 Color = float4::RED;
 	Color.a = 0.2f;
 	Collision->SetDebugSetting(CollisionType::CT_AABB2D, Color);

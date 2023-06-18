@@ -43,8 +43,17 @@ public:
 		return StateManager;
 	}
 
-	void Initialize();
+	void Initialize(GameRoomType* _AdjacenceRoom);
 
+	void SetType(GameRoomType _Type) {
+		Type = _Type;
+	}
+
+	void OpenDoors();
+	void CloseDoors();
+	int GetMapEnemyCount();
+
+	void SetDoorState(std::string _Name);
 protected:
 	void Start() override;
 	void Update(float _DeltaTime);
@@ -72,6 +81,8 @@ private:
 
 	GameEngineStateManager StateManager;
 
+	std::vector<GameEngineTextureRenderer*> MapTile;
+
 	std::vector<GameEngineActor*> IncludeActors;
 
 	std::vector<int> EndRoom;
@@ -79,5 +90,7 @@ private:
 
 	std::map<int, Door*> Doors;
 	std::vector<Wall*> Walls;
+
+	GameRoomType Type;
 };
 

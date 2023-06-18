@@ -32,7 +32,7 @@ GameEngineCollisionFunctionInit Inst;
 GameEngineCollision::GameEngineCollision() 
 	: DebugType(CollisionType::CT_SPHERE)
 	, Color(1.0f, 0.0f, 0.0f, 0.5f)
-	, Mass(100.f), Power(100.f)
+	, Mass(10.f), Power(100.f)
 {
 }
 
@@ -172,6 +172,9 @@ bool GameEngineCollision::IsCollisionRigidBody(CollisionType _ThisType, int _Gro
 	std::list<GameEngineCollision*>& Collisions = AllCollisions[_GroupOrder];
 
 	for (GameEngineCollision* Collision : Collisions) {
+		if (this == Collision)
+			continue;
+
 		if (false == Collision->IsUpdate()) {
 			continue;
 		}
@@ -195,34 +198,21 @@ bool GameEngineCollision::IsCollisionRigidBody(CollisionType _ThisType, int _Gro
 
 
 			RECT This = {
-				ThisPos.x - GetTransform().GetWorldScale().x / 2,
-				ThisPos.y - GetTransform().GetWorldScale().y / 2,
+				ThisPos.x - GetTransform().GetWorldScale().x / 2 - 1.f,
+				ThisPos.y - GetTransform().GetWorldScale().y / 2 - 1.f,
 			};
-			This.right = This.left + GetTransform().GetWorldScale().x;
-			This.bottom = This.top + GetTransform().GetWorldScale().y;
+			This.right = This.left + GetTransform().GetWorldScale().x + 1.f;
+			This.bottom = This.top + GetTransform().GetWorldScale().y + 1.f;
 
 			RECT Other = {
-				OtherPos.x - Collision->GetTransform().GetWorldScale().x / 2,
-				OtherPos.y - Collision->GetTransform().GetWorldScale().y / 2,
+				OtherPos.x - Collision->GetTransform().GetWorldScale().x / 2 - 1.f,
+				OtherPos.y - Collision->GetTransform().GetWorldScale().y / 2 - 1.f,
 			};
-			Other.right = Other.left + Collision->GetTransform().GetWorldScale().x;
-			Other.bottom = Other.top + Collision->GetTransform().GetWorldScale().y;
-
-			GameEngineTransform T, TT, TTT;
-			TT.SetWorldPosition(float4(This.left + (This.right - This.left) / 2, This.top + (This.bottom - This.top) / 2, -3));
-			TT.SetWorldScale(float4(This.right - This.left, This.bottom - This.top));
-			//GameEngineDebug::DrawBox(TT, float4::GREEN);
-
-			TTT.SetWorldPosition(float4(Other.left + (Other.right - Other.left) / 2, Other.top + (Other.bottom - Other.top) / 2, -3));
-			TTT.SetWorldScale(float4(Other.right - Other.left, Other.bottom - Other.top));
-			//GameEngineDebug::DrawBox(TTT, float4::GREEN);
+			Other.right = Other.left + Collision->GetTransform().GetWorldScale().x + 1.f;
+			Other.bottom = Other.top + Collision->GetTransform().GetWorldScale().y + 1.f;
 
 			RECT Intersect;
 			if (IntersectRect(&Intersect, &This, &Other)) {
-				T.SetWorldPosition(float4(Intersect.left + (Intersect.right - Intersect.left) / 2, Intersect.top + (Intersect.bottom - Intersect.top) / 2, -3));
-				T.SetWorldScale(float4(Intersect.right - Intersect.left, Intersect.bottom - Intersect.top));
-
-				//GameEngineDebug::DrawBox(T, float4::GREEN);
 				float InterWidth = Intersect.right - Intersect.left;
 				float InterHeight = Intersect.bottom - Intersect.top;
 
@@ -244,23 +234,36 @@ bool GameEngineCollision::IsCollisionRigidBody(CollisionType _ThisType, int _Gro
 					}
 				}
 
+				// 겹쳐있는데 어처피 나갈 방향으로 간다면 밀어내지 않는다
+				//	LastMove
+
+
+				float4 ImpurseNormal = (Impurse * 1.1f).NormalizeReturn();
+
 				float _SubMass;
 				if (!this->GetTransform().GetStatic()) {
-					GetActor()->GetTransform().SetPower(float4::ZERO);
+					GetActor()->GetTransform().SetImpulse(float4::ZERO);
 					//_SubMass = Collision->GetMass() / (this->Mass + Collision->GetMass());
 					_SubMass = (this->Mass / Collision->GetMass());
 					GetActor()->GetTransform().SetWorldMove(-Impurse);
+				} else {
+					Collision->GetActor()->GetTransform().Accel = 0.f;
 				}
 				if (!Collision->GetTransform().GetStatic()) {
-					Collision->GetActor()->GetTransform().SetPower(float4::ZERO);
+					Collision->GetActor()->GetTransform().SetImpulse(float4::ZERO);
 					_SubMass = (Collision->GetMass() / this->Mass);
 					//_SubMass = this->Mass / (this->Mass + Collision->GetMass());
 					Collision->GetActor()->GetTransform().SetWorldMove(Impurse);
+				} else {
+					GetActor()->GetTransform().Accel = 0.f;
 				}
 
 				if (!this->GetTransform().GetStatic() && !Collision->GetTransform().GetStatic()) {
-					GetActor()->GetTransform().AddForce(-Impurse);
-					Collision->GetActor()->GetTransform().AddForce(Impurse);
+					float MassScale = Collision->GetMass() / this->Mass;
+					GetActor()->GetTransform().AddForce(-ImpurseNormal * MassScale * GetActor()->GetTransform().GetPower());
+					MassScale = this->Mass / Collision->GetMass();
+					float4 Force = ImpurseNormal * MassScale * Collision->GetActor()->GetTransform().GetPower();
+					Collision->GetActor()->GetTransform().AddForce(Force);
 				}
 			}
 

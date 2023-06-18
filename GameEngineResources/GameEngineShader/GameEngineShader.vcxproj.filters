@@ -30,6 +30,9 @@
     <FxCompile Include="ITextureAtlas.hlsl">
       <Filter>Object</Filter>
     </FxCompile>
+    <FxCompile Include="Number.hlsl">
+      <Filter>Object</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Debug">

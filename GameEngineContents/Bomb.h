@@ -12,6 +12,9 @@ public:
 	Bomb& operator=(const Bomb& _Other) = delete;
 	Bomb& operator=(Bomb&& _Other) noexcept = delete;
 
+	bool ObjectCollision(GameEngineCollision* _This, GameEngineCollision* _Other);
+	bool DamageCollision(GameEngineCollision* _This, GameEngineCollision* _Other);
+
 protected:
 	void Start() override;
 	void Update(float _DeltaTime);
@@ -28,15 +31,18 @@ protected:
 	void DeadUpdate(float _DeltaTime, const StateInfo& _Info);
 
 	std::thread DelayThread;
-
+	float4 LastVelocity;
 	int Index;
 
 	float4 Push;
 	float4 Accel;
 
 	DWORD DelayTime;
-	DWORD StartTime;
 	DWORD LastTime;
+	DWORD StartTime;
+	DWORD ExplosionTime;
+
+	bool CollisionTrigger;
 
 	GameEngineStateManager StateManager;
 };

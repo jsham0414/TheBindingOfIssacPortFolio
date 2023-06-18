@@ -121,12 +121,12 @@ GameEngineTextureRenderer::GameEngineTextureRenderer()
 	, ScaleMode(SCALEMODE::CUSTOM)
 	, ScaleRatio(2.0f)
 {
-	FrameAni = new std::map<std::string, FrameAnimation>();
+	FrameAni = std::make_shared<std::map<std::string, FrameAnimation>>();
 }
 
 GameEngineTextureRenderer::~GameEngineTextureRenderer() 
 {
-	delete FrameAni;
+	FrameAni.reset();
 }
 
 void GameEngineTextureRenderer::SetTextureRendererSetting()
@@ -182,28 +182,28 @@ void GameEngineTextureRenderer::SetPivot(PIVOTMODE _Mode)
 		AtlasDataInst.PivotPos = float4::ZERO;
 		break;
 	case PIVOTMODE::BOT:
-		AtlasDataInst.PivotPos = float4(0.0f, 0.5f, 0.0f, 0.0f);
-		break;
-	case PIVOTMODE::TOP:
 		AtlasDataInst.PivotPos = float4(0.0f, -0.5f, 0.0f, 0.0f);
 		break;
-	case PIVOTMODE::LEFT:
-		AtlasDataInst.PivotPos = float4(0.5f, 0.0f, 0.0f, 0.0f);
+	case PIVOTMODE::TOP:
+		AtlasDataInst.PivotPos = float4(0.0f, 0.5f, 0.0f, 0.0f);
 		break;
-	case PIVOTMODE::RIGHT:
+	case PIVOTMODE::LEFT:
 		AtlasDataInst.PivotPos = float4(-0.5f, 0.0f, 0.0f, 0.0f);
 		break;
+	case PIVOTMODE::RIGHT:
+		AtlasDataInst.PivotPos = float4(0.5f, 0.0f, 0.0f, 0.0f);
+		break;
 	case PIVOTMODE::LEFTTOP:
-		AtlasDataInst.PivotPos = float4(0.5f, -0.5f, 0.0f, 0.0f);
+		AtlasDataInst.PivotPos = float4(-0.5f, 0.5f, 0.0f, 0.0f);
 		break;
 	case PIVOTMODE::RIGHTTOP:
-		AtlasDataInst.PivotPos = float4(-0.5f, -0.5f, 0.0f, 0.0f);
-		break;
-	case PIVOTMODE::LEFTBOT:
 		AtlasDataInst.PivotPos = float4(0.5f, 0.5f, 0.0f, 0.0f);
 		break;
+	case PIVOTMODE::LEFTBOT:
+		AtlasDataInst.PivotPos = float4(-0.5f, -0.5f, 0.0f, 0.0f);
+		break;
 	case PIVOTMODE::RIGHTBOT:
-		AtlasDataInst.PivotPos = float4(-0.5f, 0.5f, 0.0f, 0.0f);
+		AtlasDataInst.PivotPos = float4(0.5f, -0.5f, 0.0f, 0.0f);
 		break;
 	case PIVOTMODE::CUSTOM:
 		break;
@@ -236,11 +236,15 @@ void GameEngineTextureRenderer::SetTexture(GameEngineTexture* _Texture)
 
 void GameEngineTextureRenderer::SetTexture(const std::string& _Name)
 {
+	TexName = _Name;
 	CurTex = ShaderResources.SetTexture("Tex", _Name);
 }
 
 void GameEngineTextureRenderer::SetFrame(UINT _Index)
 {
+	if (CurTex->GetCutCount() == 0)
+		return;
+
 	AtlasDataInst.FrameData = CurTex->GetFrameData(_Index);
 }
 
@@ -316,8 +320,10 @@ void GameEngineTextureRenderer::CreateFrameAnimationCutTexture(const std::string
 		MsgBoxAssert("이미 존재하는 애니메이션을 또 만들려고 했습니다.");
 		return;
 	}
+	
 
 	FrameAnimation& NewAni = (*FrameAni)[Name];
+	NewAni.SetName(_AnimationName);
 	NewAni.Info = _Desc;
 	NewAni.Info.Renderer = this;
 	NewAni.ParentRenderer = this;

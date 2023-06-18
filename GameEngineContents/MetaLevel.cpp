@@ -18,8 +18,6 @@ void MetaLevel::Start()
     MetaAnimationGUI_->MetaDir.Move("ContentsResources");
     MetaAnimationGUI_->MetaDir.Move("Texture");
     MetaAnimationGUI_->MetaDir.Move("Meta");
-
-    MetaAnimationGUI_->Off();
 }
 
 void MetaLevel::Update(float _DeltaTime)

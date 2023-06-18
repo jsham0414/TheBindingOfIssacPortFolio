@@ -2,6 +2,7 @@
 #include "LoadingLevel.h"
 
 LoadingLevel::LoadingLevel() {
+	SetName("Loading");
 }
 
 LoadingLevel::~LoadingLevel() {
@@ -20,7 +21,7 @@ void LoadingLevel::End() {
 void LoadingLevel::LevelStartEvent() {
 }
 
-void LoadingLevel::LoadTexture() {
+bool LoadingLevel::LoadTexture() {
 	GameEngineDirectory Dir;
 	Dir.MoveParentToExitsChildDirectory("ContentsResources");
 	Dir.Move("ContentsResources");
@@ -35,4 +36,6 @@ void LoadingLevel::LoadTexture() {
 
 		GameEngineTexture::Load(Shaders[i].GetFullPath());
 	}
+
+	return true;
 }

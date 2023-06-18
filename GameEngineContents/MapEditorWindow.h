@@ -36,5 +36,6 @@ private:
 
 	void Initialize(class GameEngineLevel* _Level) override;
 	void OnGUI(GameEngineLevel* _Level, float _DeltaTime) override;
+	bool LoadTextureFromFile(const char* filename, ID3D11ShaderResourceView** out_srv, int* out_width, int* out_height);
 };
 

@@ -171,6 +171,7 @@
     <ClCompile Include="GameEngineRandom.cpp" />
     <ClCompile Include="GameEngineSound.cpp" />
     <ClCompile Include="GameEngineString.cpp" />
+    <ClCompile Include="GameEngineThread.cpp" />
     <ClCompile Include="GameEngineTime.cpp" />
     <ClCompile Include="GameEngineTransform.cpp">
       <SubType>
@@ -195,11 +196,13 @@
     <ClInclude Include="GameEngineFile.h" />
     <ClInclude Include="GameEngineInput.h" />
     <ClInclude Include="GameEngineMath.h" />
+    <ClInclude Include="GameEngineMemoryPool.h" />
     <ClInclude Include="GameEngineNameObject.h" />
     <ClInclude Include="GameEnginePath.h" />
     <ClInclude Include="GameEngineRandom.h" />
     <ClInclude Include="GameEngineSound.h" />
     <ClInclude Include="GameEngineString.h" />
+    <ClInclude Include="GameEngineThread.h" />
     <ClInclude Include="GameEngineTime.h" />
     <ClInclude Include="GameEngineTransform.h">
       <SubType>

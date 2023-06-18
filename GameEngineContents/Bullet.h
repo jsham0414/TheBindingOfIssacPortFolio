@@ -1,8 +1,9 @@
 #pragma once
+#include <GameEngineBase/GameEngineMemoryPool.h>
 #include <GameEngineCore/GameEngineActorInfo.h>
 
 // Ό³Έν :
-class Bullet : public GameEngineActor {
+class Bullet : public GameEngineMemoryPool<Bullet, 100>, public GameEngineActor {
 public:
 	// constrcuter destructer
 	Bullet();
@@ -13,6 +14,8 @@ public:
 	Bullet(Bullet&& _Other) noexcept = delete;
 	Bullet& operator=(const Bullet& _Other) = delete;
 	Bullet& operator=(Bullet&& _Other) noexcept = delete;
+
+	void Init();
 
 	void SetDirection(int _Direction);
 
@@ -27,6 +30,10 @@ public:
 		Angle = _Angle;
 	}
 
+	void SetSpeed(float _Speed) {
+		Speed = _Speed;
+	}
+
 	void SetVelocity(float _Velocity) {
 		Velocity = _Velocity;
 	}
@@ -35,7 +42,6 @@ public:
 		Speed += _Power;
 	}
 
-	GameEngineTransform SubTransform;
 	GameEngineStateManager StateManager;
 protected:
 	void Start() override;

@@ -9,7 +9,7 @@ Horf::Horf() :
 	Power = 2.f;
 	Period = 1.8f;
 	AttackDelay = 1500;
-	Hp = 10;
+	Hp = 4;
 }
 
 Horf::~Horf() {
@@ -41,7 +41,7 @@ void Horf::Start() {
 
 	Collision = CreateComponent<GameEngineCollision>();
 	Collision->GetTransform().SetLocalPosition({ 0, 25, 0 });
-	Collision->GetTransform().SetWorldScale({ 40.0f, 40.0f, 50.0f });
+	Collision->GetTransform().SetLocalScale({ 40.0f, 40.0f, 50.0f });
 	Collision->ChangeOrder(OBJECTORDER::Monster);
 	float4 Color = float4::RED;
 	Color.a = 0.2f;
@@ -56,6 +56,8 @@ void Horf::Start() {
 void Horf::Update(float _DeltaTime) {
 	StateManager.Update(_DeltaTime);
 
+	Collision->IsCollisionRigidBody(CollisionType::CT_AABB2D, OBJECTORDER::Monster, CollisionType::CT_AABB2D);
+
 	float x = Power * cosf((2 * GameEngineMath::PI * (GetTickCount64() / 50.f)) / Period);
 	Renderer->GetTransform().SetLocalPosition({x, 0.f, 0.0f});
 }
@@ -67,11 +69,6 @@ bool Horf::MonsterCollision(GameEngineCollision* _This, GameEngineCollision* _Ot
 void Horf::CreateFrameAnimation() {
 	Renderer->CreateFrameAnimationCutTexture("Idle", FrameAnimation_DESC("Horf.png", 0, 0, 0.3f));
 	Renderer->CreateFrameAnimationCutTexture("Attack", FrameAnimation_DESC("Horf.png", 0, 2, 0.25f));
-}
-
-void Horf::Damage() {
-	ColorChange = thread(&Monster::DamageAnimation, this);
-	ColorChange.detach();
 }
 
 void Horf::IdleStateStart(const StateInfo& _Info) {
@@ -112,7 +109,7 @@ void Horf::AttackStateUpdate(float _DeltaTime, const StateInfo& _Info) {
 
 	Size += 5.f * _DeltaTime;
 	float y = powf(10.f * cosf(GameEngineMath::PI * Size * 2.f), 3.f);
-	y = max(y, 0);
+	y = std::max((long long)y, 0ll);
 
 	Renderer->GetTransform().SetWorldScale({ HorfScale.x * 1.5f - (y * 50.f), HorfScale.y * 1.5f + y * 100.f, 1 });
 
@@ -122,15 +119,15 @@ void Horf::AttackStateUpdate(float _DeltaTime, const StateInfo& _Info) {
 		float4 PlayerPosition = Player::GetMainPlayer()->GetTransform().GetWorldPosition();
 		float4 Position = GetTransform().GetWorldPosition();
 
-		Bullet* NewBullet = GameEngineCore::GetCurLevel()->CreateActor<Bullet>(Collision->GetOrder());
+		Bullet* NewBullet = GetLevel()->CreateActor<Bullet>(Collision->GetOrder());
+		NewBullet->Init();
 
 		float Angle = atan2f(PlayerPosition.y - Position.y, PlayerPosition.x - Position.x) * GameEngineMath::RadianToDegree;
 
 		NewBullet->SetAngle(Angle);
-		float4 pos = GetTransform().GetWorldPosition();
-		pos.y += 0.f;
-		NewBullet->GetTransform().SetWorldPosition(pos);
-		NewBullet->GetRenderer()->SetTexture("Tear_002.png");
+		float4 NewPos = GetTransform().GetWorldPosition();
+		NewPos.y += 0.f;
+		NewBullet->GetTransform().SetWorldPosition(NewPos);
 		NewBullet->StateManager.ChangeState("Idle");
 	}
 }
