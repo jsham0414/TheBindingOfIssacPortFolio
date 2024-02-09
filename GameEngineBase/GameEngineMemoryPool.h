@@ -87,7 +87,6 @@ private:
 		*/
 
 		const bool operator<(GameEngineMemoryBlock&& rhs) const noexcept {
-
 			return BlockAddress < rhs.BlockAddress;
 		}
 

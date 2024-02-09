@@ -29,8 +29,11 @@ GameEngineCamera::~GameEngineCamera()
 
 bool ZSort(GameEngineRenderer* _Left, GameEngineRenderer* _Right)
 {
-	if (_Left->GetTransform().GetWorldPosition().z == _Right->GetTransform().GetWorldPosition().z)
-		return _Left->GetTransform().GetWorldPosition().y > _Right->GetTransform().GetWorldPosition().y;
+	if (_Left->GetTransform().GetWorldPosition().z == _Right->GetTransform().GetWorldPosition().z) {
+		GameEngineActor* left = static_cast<GameEngineActor*>(_Left->GetRoot());
+		GameEngineActor* right = static_cast<GameEngineActor*>(_Right->GetRoot());
+		return left->GetTransform().GetWorldPosition().y > right->GetTransform().GetWorldPosition().y;
+	}
 
 	return _Left->GetTransform().GetWorldPosition().z > _Right->GetTransform().GetWorldPosition().z;
 }

@@ -81,5 +81,5 @@ void ContentsCore::Update(float _DeltaTime)
 
 void ContentsCore::End()
 {
-	int a = 0;
+
 }

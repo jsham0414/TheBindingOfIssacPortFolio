@@ -103,7 +103,6 @@ void GameEngineTransform::PixLocalPositiveX()
 		return;
 	}
 
-	// abs 어떤 숫자를 넣으면 무조건 양수(절대값)으로 변경해주는 함수.
 	Data.LocalScaling.x = abs(Data.LocalScaling.x);
 
 	SetLocalScale(Data.LocalScaling);

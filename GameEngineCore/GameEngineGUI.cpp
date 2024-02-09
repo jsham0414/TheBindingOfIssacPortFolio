@@ -22,7 +22,7 @@ void GameEngineGUI::Initialize()
 	IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    (void)io;
+    
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
@@ -65,6 +65,7 @@ void GameEngineGUI::GUIRender(GameEngineLevel* _Level, float _DeltaTime)
         {
             continue;
         }
+
         GUIWIndow->Begin();
         GUIWIndow->OnGUI(_Level, _DeltaTime);
         GUIWIndow->End();
@@ -93,7 +94,6 @@ void GameEngineGUI::GUIRender(GameEngineLevel* _Level, float _DeltaTime)
     // 여기사이에
 
     ImGuiIO& io = ImGui::GetIO();
-    (void)io;
 
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

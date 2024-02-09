@@ -17,7 +17,7 @@ void SlotMachine::Start() {
 	Collision->GetTransform().SetStatic(true);
 
 	CreateFrameAnimation();
-	Renderer->ChangeFrameAnimation("Idle");
+	Renderer->SetTexture("slot_001_machine.png", 0);
 
 	StateManager.CreateStateMember("Idle"
 		, std::bind(&SlotMachine::IdleUpdate, this, std::placeholders::_1, std::placeholders::_2)
@@ -37,7 +37,17 @@ void SlotMachine::Start() {
 		Card[j] = c;
 	}
 
-	StateManager.ChangeState("Trigger");
+	TableNumber = float4::ZERO;
+
+	for (int j = 0; j < 3; j++) {
+		CardNumber[j] = rand() % 6 + 1;
+		Card[j]->SetTexture("slot_001_machine_card.png", CardNumber[j]);
+		Card[j]->ScaleToCutTexture();
+	}
+	Lock = 0;
+	Spin = false;
+
+	StateManager.ChangeState("Idle");
 }
 
 void SlotMachine::Update(float _DeltaTime) {
@@ -45,7 +55,8 @@ void SlotMachine::Update(float _DeltaTime) {
 }
 
 void SlotMachine::IdleStart(const StateInfo& _Info) {
-	Renderer->ChangeFrameAnimation("Idle");
+	if (!_Info.PrevState.empty())
+		Renderer->ChangeFrameAnimation("Idle");
 	Renderer->ScaleToCutTexture();
 }
 
@@ -123,6 +134,6 @@ void SlotMachine::SpinUpdate(float _DeltaTime, const StateInfo& _Info) {
 
 
 void SlotMachine::CreateFrameAnimation() {
-	Renderer->CreateFrameAnimationCutTexture("Idle", FrameAnimation_DESC("slot_001_machine.png", 0, 0, 1.f, false));
+	Renderer->CreateFrameAnimationCutTexture("Idle", FrameAnimation_DESC("slot_001_machine.png", {2, 1, 0}, 0.05f, false));
 	Renderer->CreateFrameAnimationCutTexture("Trigger", FrameAnimation_DESC("slot_001_machine.png", 0, 2, 0.05f, false));
 }

@@ -99,8 +99,6 @@ void Monstro::Start() {
 
 	StateManager.ChangeState("Idle");
 
-	GetTransform().SetWorldPosition(Player::GetMainPlayer()->GetTransformData().WorldPosition);
-
 	BossUIInstance = GetLevel()->CreateActor<BossUI>();
 }
 
@@ -121,6 +119,7 @@ bool Monstro::MonsterCollision(GameEngineCollision* _This, GameEngineCollision* 
 		Player* _Player = static_cast<Player*>(_Other->GetActor());
 		_Player->Assault();
 	}
+
 	return true;
 }
 
@@ -219,7 +218,7 @@ void Monstro::BigJumpingUpdate(float _DeltaTime, const StateInfo& _Info) {
 		ShadowScale = std::lerp(1.f, 0.6f, GameEngineMath::EaseOutQuint(fmin(1.f, Duration)));
 	}
 
-	Renderer->GetTransform().SetLocalPosition({ 0.f, NewY });
+	Renderer->GetTransform().SetLocalPosition({ 0.f, NewY, 10.f });
 
 	auto Shadow = MonstroRenderer["Shadow"];
 	Shadow->GetTransform().SetLocalScale(Shadow->GetCurTexture()->GetScale() * ShadowScale);
@@ -287,7 +286,7 @@ void Monstro::SpitUpdate(float _DeltaTime, const StateInfo& _Info) {
 	Renderer->GetTransform().SetLocalScale({ Direction * TextureSize.x, TextureSize.y * NewY });
 	Duration = (_Info.StateTime) * 2.f;
 	float NewX = std::lerp(0.5f, 20.0f, Duration);
-	Renderer->GetTransform().SetLocalPosition({ -10.f + powf(sinf(NewX), 2.f) * 20.f, 0.f });
+	Renderer->GetTransform().SetLocalPosition({ -10.f + powf(sinf(NewX), 2.f) * 20.f, 0.f, 10.f });
 
 	if (_Info.StateTime > 0.5f) {
 		for (int i = 0; i < 6; i++) {
@@ -313,7 +312,7 @@ void Monstro::SpitUpdate(float _DeltaTime, const StateInfo& _Info) {
 }
 
 void Monstro::SpitingStart(const StateInfo& _Info) {
-	Renderer->GetTransform().SetLocalPosition({ 0.f, 0.f });
+	Renderer->GetTransform().SetLocalPosition({ 0.f, 0.f, 10.f });
 }
 
 void Monstro::SpitingUpdate(float _DeltaTime, const StateInfo& _Info) {
@@ -329,7 +328,7 @@ void Monstro::DeadStart(const StateInfo& _Info) {
 void Monstro::DeadUpdate(float _DeltaTime, const StateInfo& _Info) {
 	float Duration = (_Info.StateTime) * 2.f;
 	float NewX = std::lerp(0.5f, 20.0f, Duration);
-	Renderer->GetTransform().SetLocalPosition({ -10.f + powf(sinf(NewX), 2.f) * 20.f, 0.f });
+	Renderer->GetTransform().SetLocalPosition({ -10.f + powf(sinf(NewX), 2.f) * 20.f, 0.f, 10.f });
 
 	if (_Info.StateTime > 5.f) {
 		auto Blood = GetLevel()->CreateActor<DyingBlood>();
@@ -357,7 +356,7 @@ void Monstro::JumpUpdate(float _DeltaTime, const StateInfo& _Info) {
 		ShadowScale = std::lerp(1.f, 0.8f, GameEngineMath::EaseOutQuint(fmin(1.f, Duration)));
 	}
 
-	Renderer->GetTransform().SetLocalPosition({ 0.f, NewY });
+	Renderer->GetTransform().SetLocalPosition({ 0.f, NewY, 10.f });
 
 	auto Shadow = MonstroRenderer["Shadow"];
 	Shadow->GetTransform().SetLocalScale(Shadow->GetCurTexture()->GetScale() * ShadowScale);
@@ -372,7 +371,6 @@ void Monstro::JumpUpdate(float _DeltaTime, const StateInfo& _Info) {
 
 	if (Duration >= 0.70f && Falling == false) {
 		Falling = true;
-		//StateManager.ResetStateTime();
 		Renderer->ChangeFrameAnimation("BigJumpFalling");
 		Renderer->CurAnimationPauseOn();
 		return;

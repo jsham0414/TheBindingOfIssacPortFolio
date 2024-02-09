@@ -63,8 +63,6 @@ bool PlayLevel::LoadTexture() {
 
 			GameEngineTexture::Load(Shaders[i].GetFullPath());
 
-			//#define ASASD(path) if (nullptr == GameEngineTexture::Find(path) && GameEngineString::ToLowerReturn(GameEnginePath::GetFileName(Shaders[i].GetFullPath()) + GameEnginePath::GetExtension(Shaders[i].GetFullPath()))
-
 			if (Shaders[i].GetFileName() == "issac_head.png")
 				GameEngineTexture::Cut(Shaders[i].GetFileName(), 3, 4);
 			if (Shaders[i].GetFileName() == "issac_body_horizontal.png")

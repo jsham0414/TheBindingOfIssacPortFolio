@@ -220,7 +220,7 @@ void MapManager::RandomMapGenerate(GameEngineLevel* _Level) {
 		RoomCount = 0;
 
 		Visit(RoomPlan, StartPos);
-		while (RoomQueue.size() > 0) {
+		while (!RoomQueue.empty()) {
 			int i = RoomQueue.front();
 			RoomQueue.pop();
 			int x = i % Width;

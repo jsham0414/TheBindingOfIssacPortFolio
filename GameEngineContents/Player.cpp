@@ -108,7 +108,7 @@ void Player::Start() {
 	AllRenderer["Head"]->GetTransform().SetLocalPosition({ 0.0f, 20.f, 10.0f });
 
 	AllRenderer["Body"] = CreateComponent<GameEngineTextureRenderer>();
-	AllRenderer["Body"]->GetTransform().SetLocalPosition({ 0.0f, 0.0f, 10.0f });
+	AllRenderer["Body"]->GetTransform().SetLocalPosition({ 0.0f, 0.0f, 11.0f });
 
 	auto Shadow = CreateComponent<GameEngineTextureRenderer>();
 	Shadow->GetTransform().SetLocalPosition({ 0.0f, -14.0f, 11.0f });
@@ -485,7 +485,6 @@ void Player::Update(float _DeltaTime) {
 
 	float4 _NewForce = { 0.f };
 
-	// 피타고라스
 	if (GetHorizontal() != 0.f) {
 		float _NewSpeed = GetHorizontal() / sqrtf(fabsf(GetHorizontal()) + fabsf(GetVertical()));
 		_NewForce.x = _NewSpeed * Speed;

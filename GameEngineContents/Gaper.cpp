@@ -13,11 +13,12 @@ Gaper::~Gaper() {
 
 void Gaper::Start() {
 	Renderer = CreateComponent<GameEngineTextureRenderer>();
+	Renderer->GetTransform().SetLocalPosition({ 0.f, 0.f, 11.f });
 	auto Head = CreateComponent<GameEngineTextureRenderer>();
 
 	Head->SetTexture("monster_017_gaper.png", 1);
 	Head->ScaleToCutTexture(1);
-	Head->GetTransform().SetLocalPosition({ 0.f, 22.f });
+	Head->GetTransform().SetLocalPosition({ 0.f, 22.f, 10.f });
 
 	GaperRenderer["Head"] = Head;
 	GaperRenderer["Body"] = Renderer;
